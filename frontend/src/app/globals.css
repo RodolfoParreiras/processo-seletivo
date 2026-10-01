@@ -1066,3 +1066,59 @@ button.link-danger:hover {
   flex-wrap: wrap;
   margin-top: 16px;
 }
+
+/* ---- Página pública do processo ---- */
+
+.hero .tags {
+  margin-bottom: 6px;
+}
+
+.hero .tag {
+  background: rgb(255 255 255 / 0.15);
+  color: #fff;
+}
+
+main.stack .card .hint:last-child {
+  margin-bottom: 0;
+}
+
+.download-list,
+.requirement-summary {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.download-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.download-row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.download-row > .ti {
+  color: var(--color-navy);
+  font-size: 1.25rem;
+}
+
+.download-row .grow {
+  flex: 1;
+  min-width: 180px;
+}
+
+.requirement-summary li {
+  padding: 8px 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.requirement-summary li:first-child {
+  border-top: none;
+  padding-top: 0;
+}

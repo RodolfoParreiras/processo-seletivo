@@ -15,35 +15,6 @@ interface ProcessDocument {
   withdrawalReason: string | null;
 }
 
-/** Lista pública dos Documentos do Processo. */
-export function PublicProcessDocuments({ processId }: { processId: string }) {
-  const [documents, setDocuments] = useState<ProcessDocument[]>([]);
-
-  useEffect(() => {
-    apiGet<ProcessDocument[]>(`/api/processes/${encodeURIComponent(processId)}/documents`)
-      .then(setDocuments)
-      .catch(() => setDocuments([]));
-  }, [processId]);
-
-  return (
-    <section>
-      <h2>Documentos do Processo</h2>
-      {documents.length === 0 ? (
-        <p className="hint">Nenhum documento publicado.</p>
-      ) : (
-        <ul>
-          {documents.map((document) => (
-            <li key={document.id}>
-              <a href={`/api/processes/${processId}/documents/${document.id}/file`}>{document.name}</a>{" "}
-              <span className="hint">· publicado em {formatDateTime(document.publishedAt)}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
 /** Documentos do Processo na área administrativa: publicação com nome e retirada com justificativa. */
 export function AdminProcessDocuments({ processId, canPublish }: { processId: string; canPublish: boolean }) {
   const [documents, setDocuments] = useState<ProcessDocument[]>([]);

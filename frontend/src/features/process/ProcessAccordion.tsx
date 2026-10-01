@@ -43,6 +43,11 @@ function PositionsPanel({ processId }: { processId: string }) {
   if (!process) return <p className="hint" aria-live="polite">Carregando...</p>;
   if (process.positions.length === 0) return <p className="hint">Nenhum cargo cadastrado.</p>;
 
+  return <PositionList process={process} />;
+}
+
+/** Cargos com número de vagas em destaque e, com inscrições abertas, o botão de inscrição. */
+export function PositionList({ process }: { process: ProcessDetail }) {
   const open = process.status === "INSCRICOES_ABERTAS";
   return (
     <div className="position-list">
