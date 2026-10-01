@@ -31,6 +31,18 @@ services:
       DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD}
       DB_APP_USER: ${DB_APP_USER}
       DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:?defina no .env}
+      MAIL_HOST: ${MAIL_HOST:?defina no .env}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS: ${MAIL_SMTP_STARTTLS:-true}
+      MAIL_FROM: ${MAIL_FROM:?defina no .env}
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+      BOOTSTRAP_ADMIN_CPF: ${BOOTSTRAP_ADMIN_CPF:-}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
       TZ: UTC
     depends_on:
       postgres:
@@ -60,6 +72,16 @@ services:
         condition: service_healthy
       frontend:
         condition: service_started
+    mem_limit: 64m
+
+  # Somente desenvolvimento: captura os e-mails enviados (interface em http://localhost:8025).
+  # Em produção, aponte MAIL_HOST para o SMTP institucional e não suba este serviço.
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    profiles: ["dev"]
+    ports:
+      - "127.0.0.1:8025:8025"
     mem_limit: 64m
 
 volumes:

@@ -34,6 +34,20 @@ class DatabasePrivilegesTest extends PostgresIntegrationTest {
     }
 
     @Test
+    void auditLogIsInsertOnlyForApplication() {
+        jdbcTemplate.update("""
+                insert into audit_log (occurred_at, action, outcome) values (now(), 'TEST_EVENT', 'SUCCESS')
+                """);
+
+        assertThatThrownBy(() -> jdbcTemplate.update("update audit_log set action = 'CHANGED'"))
+                .isInstanceOf(DataAccessException.class);
+        assertThatThrownBy(() -> jdbcTemplate.update("delete from audit_log"))
+                .isInstanceOf(DataAccessException.class);
+        assertThatThrownBy(() -> jdbcTemplate.execute("truncate audit_log"))
+                .isInstanceOf(DataAccessException.class);
+    }
+
+    @Test
     void migrationsAreOwnedBySchemaOwner() {
         String historyOwner = jdbcTemplate.queryForObject(
                 "SELECT tableowner FROM pg_tables WHERE schemaname = 'app' AND tablename = 'flyway_schema_history'",

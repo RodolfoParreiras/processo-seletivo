@@ -50,7 +50,7 @@ class SecurityBaselineTest extends PostgresIntegrationTest {
 
     @Test
     void stateChangingRequestWithCsrfTokenIsStillDeniedByDefault() throws Exception {
-        mockMvc.perform(post("/api/auth/login").with(csrf()))
+        mockMvc.perform(post("/api/admin/processes").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 

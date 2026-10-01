@@ -1,6 +1,8 @@
 package br.gov.pmps.processoseletivo;
 
+import br.gov.pmps.processoseletivo.support.RecordingEmailGateway;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -12,6 +14,7 @@ import org.testcontainers.utility.MountableFile;
  * exercitem a separação de privilégios entre dono do schema (Flyway) e aplicação.
  */
 @SpringBootTest
+@Import(RecordingEmailGateway.Configuration.class)
 public abstract class PostgresIntegrationTest {
 
     protected static final String OWNER_USER = "ps_owner_test";
@@ -37,11 +40,15 @@ public abstract class PostgresIntegrationTest {
     }
 
     @DynamicPropertySource
-    static void databaseProperties(DynamicPropertyRegistry registry) {
+    static void testProperties(DynamicPropertyRegistry registry) {
         registry.add("DB_URL", POSTGRES::getJdbcUrl);
         registry.add("DB_OWNER_USER", () -> OWNER_USER);
         registry.add("DB_OWNER_PASSWORD", () -> OWNER_PASSWORD);
         registry.add("DB_APP_USER", () -> APP_USER);
         registry.add("DB_APP_PASSWORD", () -> APP_PASSWORD);
+        // O envio real é substituído por RecordingEmailGateway.
+        registry.add("MAIL_HOST", () -> "localhost");
+        registry.add("MAIL_FROM", () -> "nao-responda@example.test");
+        registry.add("APP_PUBLIC_URL", () -> "https://processos.example.test");
     }
 }

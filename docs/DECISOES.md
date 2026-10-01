@@ -15,6 +15,18 @@ Data das decisões: 30/09/2026 e 01/10/2026.
 | Expiração (administrador) | 30 minutos de inatividade, com limite absoluto de 8 horas |
 | CSRF | Token em cookie lido pelo frontend e reenviado em header |
 
+| Contas | Candidato e administrador são contas separadas. O mesmo CPF pode ter uma conta de candidato e uma conta administrativa, com login, sessão e recuperação de senha independentes |
+| E-mail | Único por conta (dentro de cada tipo de conta) |
+| MFA de administradores | Implementado na fase 7 (gestão de administradores) |
+| Bloqueio por tentativas | 5 falhas consecutivas de login bloqueiam a conta por 15 minutos; a mensagem de erro é sempre genérica |
+| Limite de requisições | Por IP no Nginx para os endpoints de autenticação; por conta na aplicação (bloqueio acima) |
+| Recuperação de senha | Token aleatório de uso único, armazenado apenas como hash, válido por 30 minutos; enviado no fragmento da URL (`#token=`) para não aparecer em logs de servidor. Após a troca, todas as sessões da conta são encerradas |
+| Primeiro Administrador Geral | Criado por provisionamento único, habilitado por variáveis de ambiente e somente quando não existe nenhum administrador. Não há senha inicial: o administrador recebe por e-mail um link de definição de senha válido por 24 horas |
+
+## Cadastro do candidato
+
+Todos os campos do §7 são obrigatórios, exceto o complemento do endereço.
+
 ## Política de senha
 
 - Mínimo de 8 caracteres.

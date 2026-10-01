@@ -37,6 +37,11 @@ O arquivo `.env` nunca deve ser versionado.
 | `DB_OWNER_USER` / `DB_OWNER_PASSWORD` | Dono do schema `app`; usado apenas pelo Flyway |
 | `DB_APP_USER` / `DB_APP_PASSWORD` | Usuário da aplicação; somente SELECT/INSERT/UPDATE/DELETE |
 | `HTTP_PORT` | Porta local publicada pelo Nginx (padrão 8080) |
+| `APP_PUBLIC_URL` | URL pública do sistema, usada nos links enviados por e-mail |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | Servidor SMTP |
+| `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS` | Autenticação e STARTTLS no SMTP (em produção: `true`) |
+| `MAIL_FROM` | Remetente dos e-mails |
+| `BOOTSTRAP_ADMIN_*` | Provisionamento do primeiro Administrador Geral (ver abaixo) |
 
 Os usuários do banco são criados somente na primeira inicialização do volume `postgres-data`.
 Para alterar essas senhas depois, altere-as também no PostgreSQL.
@@ -44,11 +49,42 @@ Para alterar essas senhas depois, altere-as também no PostgreSQL.
 ## Executar
 
 ```bash
-docker compose up -d --build
+docker compose --profile dev up -d --build
 ```
+
+O perfil `dev` sobe também o Mailpit, que captura os e-mails enviados (interface em `http://localhost:8025`).
+Sem o perfil, configure `MAIL_HOST` para um SMTP real.
 
 Acesse `http://localhost:8080`. O banco não é exposto fora da rede interna do compose,
 e os endpoints `/actuator` não são acessíveis pelo Nginx.
+
+## Primeiro Administrador Geral
+
+Não existe usuário ou senha padrão. Para criar o primeiro administrador:
+
+1. No `.env`, defina `BOOTSTRAP_ADMIN_ENABLED=true` e preencha `BOOTSTRAP_ADMIN_CPF`,
+   `BOOTSTRAP_ADMIN_NAME` e `BOOTSTRAP_ADMIN_EMAIL`.
+2. Suba (ou reinicie) o backend. Se ainda não houver nenhuma conta administrativa, a conta é criada
+   e um link de definição de senha, válido por 24 horas, é enviado ao e-mail informado.
+3. Volte `BOOTSTRAP_ADMIN_ENABLED` para `false`.
+
+Se já existir conta administrativa, o provisionamento não faz nada. A operação é registrada na auditoria.
+Os demais administradores serão criados pela área administrativa (fase 7).
+
+## Endpoints de autenticação
+
+| Método | Caminho | Acesso |
+|---|---|---|
+| GET | `/api/auth/csrf` | Público; emite o cookie `XSRF-TOKEN` |
+| POST | `/api/auth/register` | Público; cadastro de candidato |
+| POST | `/api/auth/login` | Público; login de candidato |
+| POST | `/api/admin/auth/login` | Público; login administrativo |
+| POST | `/api/auth/forgot-password`, `/api/admin/auth/forgot-password` | Público; resposta sempre genérica |
+| POST | `/api/auth/reset-password` | Público; exige token válido |
+| GET | `/api/auth/session` | Autenticado |
+| POST | `/api/auth/logout` | Autenticado |
+
+Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 
 ## Testes do backend
 

@@ -1,0 +1,25 @@
+package br.gov.pmps.processoseletivo.infrastructure.configuration;
+
+import java.time.Duration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("app")
+public record AppProperties(
+        String publicUrl,
+        String mailFrom,
+        Security security,
+        BootstrapAdmin bootstrapAdmin) {
+
+    public record Security(
+            Duration candidateSessionIdleTimeout,
+            Duration adminSessionIdleTimeout,
+            Duration adminSessionAbsoluteTimeout,
+            int maxFailedLoginAttempts,
+            Duration accountLockDuration,
+            Duration passwordResetTokenValidity,
+            Duration passwordSetupTokenValidity) {
+    }
+
+    public record BootstrapAdmin(boolean enabled, String cpf, String fullName, String email) {
+    }
+}
