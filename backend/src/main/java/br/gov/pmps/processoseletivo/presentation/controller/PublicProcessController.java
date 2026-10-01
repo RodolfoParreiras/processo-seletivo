@@ -3,9 +3,11 @@ package br.gov.pmps.processoseletivo.presentation.controller;
 import br.gov.pmps.processoseletivo.application.dto.PageResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessDetailResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessSummaryResponse;
+import br.gov.pmps.processoseletivo.application.usecase.process.ProcessDocumentUseCase;
 import br.gov.pmps.processoseletivo.application.usecase.process.ProcessQueryUseCase;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus;
 import br.gov.pmps.processoseletivo.presentation.FileResponses;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicProcessController {
 
     private final ProcessQueryUseCase processQuery;
+    private final ProcessDocumentUseCase processDocuments;
 
-    public PublicProcessController(ProcessQueryUseCase processQuery) {
+    public PublicProcessController(ProcessQueryUseCase processQuery, ProcessDocumentUseCase processDocuments) {
         this.processQuery = processQuery;
+        this.processDocuments = processDocuments;
     }
 
     @GetMapping
@@ -42,5 +46,15 @@ public class PublicProcessController {
     @GetMapping("/{processId}/notices/{version}/file")
     ResponseEntity<InputStreamResource> noticeFile(@PathVariable UUID processId, @PathVariable int version) {
         return FileResponses.attachment(processQuery.openPublicNotice(processId, version));
+    }
+
+    @GetMapping("/{processId}/documents")
+    List<ProcessDocumentUseCase.DocumentView> documents(@PathVariable UUID processId) {
+        return processDocuments.listPublic(processId);
+    }
+
+    @GetMapping("/{processId}/documents/{documentId}/file")
+    ResponseEntity<InputStreamResource> documentFile(@PathVariable UUID processId, @PathVariable UUID documentId) {
+        return FileResponses.attachment(processDocuments.openPublic(processId, documentId));
     }
 }

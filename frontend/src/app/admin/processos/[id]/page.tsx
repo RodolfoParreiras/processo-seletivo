@@ -14,6 +14,7 @@ import {
   RequirementsEditor,
   StatusHistory,
 } from "@/features/admin/process/ProcessEditors";
+import { AdminProcessDocuments } from "@/features/process/ProcessDocuments";
 import { ProcessInformation } from "@/features/process/ProcessInformation";
 import type { ProcessDetail, ProcessStatus } from "@/features/process/types";
 import { ApiError, apiGet, apiPost, apiPut } from "@/lib/api";
@@ -132,6 +133,10 @@ function ProcessAdministration({ processId, can }: { processId: string; can: Adm
           </div>
         </div>
       )}
+
+      <div className="card">
+        <AdminProcessDocuments processId={process.id} canPublish={can("RESULTADO_PUBLICAR")} />
+      </div>
 
       <div className="card">
         <StatusHistory processId={process.id} version={version} />

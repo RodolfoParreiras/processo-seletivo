@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StartApplicationButton } from "@/features/application/StartApplicationButton";
+import { PublicProcessDocuments } from "@/features/process/ProcessDocuments";
 import { ProcessInformation } from "@/features/process/ProcessInformation";
 import type { ProcessDetail } from "@/features/process/types";
 import { ApiError, apiGet } from "@/lib/api";
@@ -39,6 +40,7 @@ export default function PublicProcessPage() {
                   : undefined
               }
             />
+            <PublicProcessDocuments processId={process.id} />
           </>
         )}
         <div className="actions">

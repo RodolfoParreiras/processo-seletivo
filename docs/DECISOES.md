@@ -122,3 +122,11 @@ Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
 - Fluxo após o encerramento das inscrições: análise (deferimento/indeferimento), período de recurso (tratado fora do sistema) e revisão dos indeferimentos. Todas essas etapas ocorrem com o processo em "inscrições encerradas", em que as decisões são permitidas; revisões exigem justificativa.
 - O candidato não recebe e-mail sobre a decisão: a relação é publicada no Diário Oficial e pode ser anexada ao processo em PDF (publicações, fase 9).
 - A coluna de situação por documento foi removida (V010), com autorização da Prefeitura.
+
+## Documentos do Processo
+
+- O administrador anexa ao processo qualquer documento referente a ele (ex.: relação de inscrições deferidas e indeferidas, resultado de recursos, resultados, comunicados), informando o nome do documento.
+- Formato PDF, até 10 MB (mesmo limite do edital).
+- Os documentos são públicos na página do processo, exceto enquanto o processo é rascunho.
+- Documento publicado não é apagado: pode ser retirado da página pública com justificativa; o registro e o arquivo continuam disponíveis para a área administrativa e a retirada é auditada (AI_RULES §22 e §69).
+- Permissão: `RESULTADO_PUBLICAR`.

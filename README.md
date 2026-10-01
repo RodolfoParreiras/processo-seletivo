@@ -108,6 +108,10 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | GET | `/api/admin/applications/{id}`, `/documents/{doc}/file` | `INSCRICAO_VISUALIZAR`; dados PcD só com `DADOS_PCD_VISUALIZAR`; download auditado |
 | POST | `/api/admin/applications/{id}/defer` | `INSCRICAO_DEFERIR` |
 | POST | `/api/admin/applications/{id}/deny` | `INSCRICAO_INDEFERIR`; exige `reason` |
+| GET | `/api/processes/{id}/documents`, `/{doc}/file` | Público; Documentos do Processo não retirados |
+| GET | `/api/admin/processes/{id}/documents`, `/{doc}/file` | `PROCESSO_VISUALIZAR`; inclui retirados |
+| POST | `/api/admin/processes/{id}/documents` (multipart: `name`, `file`) | `RESULTADO_PUBLICAR` |
+| POST | `/api/admin/processes/{id}/documents/{doc}/withdraw` | `RESULTADO_PUBLICAR`; exige `reason` |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 
