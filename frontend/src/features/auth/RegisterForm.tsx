@@ -11,9 +11,8 @@ import {
   toPersonalDataPayload,
   validatePersonalData,
 } from "@/features/candidate/PersonalDataFields";
-import { PasswordRules } from "@/features/auth/PasswordRules";
 import { ApiError, apiPost } from "@/lib/api";
-import { isValidCpf, maskCpf, onlyDigits, passwordProblems } from "@/lib/validation";
+import { isValidCpf, maskCpf, onlyDigits, passwordErrorMessage, passwordProblems } from "@/lib/validation";
 
 interface Credentials {
   cpf: string;
@@ -26,8 +25,9 @@ function validateCredentials(credentials: Credentials, personalData: PersonalDat
   const errors: Record<string, string> = {};
   if (!isValidCpf(credentials.cpf)) errors.cpf = "CPF inválido.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email.trim())) errors.email = "E-mail inválido.";
-  if (passwordProblems(credentials.password, personalData.fullName, personalData.birthDate).length > 0) {
-    errors.password = "A senha não atende aos requisitos.";
+  const problems = passwordProblems(credentials.password, personalData.fullName, personalData.birthDate);
+  if (problems.length > 0) {
+    errors.password = passwordErrorMessage(problems);
   }
   if (credentials.passwordConfirmation !== credentials.password) {
     errors.passwordConfirmation = "As senhas não conferem.";
@@ -98,7 +98,6 @@ export function RegisterForm() {
     );
   }
 
-  const passwordIssues = passwordProblems(credentials.password, personalData.fullName, personalData.birthDate);
 
   return (
     <main className="auth-page">
@@ -172,7 +171,6 @@ export function RegisterForm() {
                 onChange={(event) => setCredential("passwordConfirmation", event.target.value)}
               />
             </div>
-            <PasswordRules password={credentials.password} problems={passwordIssues} checksPersonalData />
           </fieldset>
 
           <button type="submit" className="block" disabled={submitting}>

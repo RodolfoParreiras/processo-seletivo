@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { ErrorAlert, SuccessAlert } from "@/components/FormAlert";
-import { PasswordRules } from "@/features/auth/PasswordRules";
 import { TextField } from "@/features/candidate/PersonalDataFields";
 import { ApiError, apiPost } from "@/lib/api";
-import { passwordProblems } from "@/lib/validation";
+import { passwordErrorMessage, passwordProblems } from "@/lib/validation";
 
 export function ResetPasswordForm() {
   const [token, setToken] = useState<string | null | undefined>(undefined);
@@ -15,6 +14,7 @@ export function ResetPasswordForm() {
   const [error, setError] = useState<ApiError | null>(null);
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ password?: string; confirmation?: string }>({});
 
   useEffect(() => {
     // O token chega no fragmento (#token=...), que o navegador não envia ao servidor.
@@ -24,13 +24,16 @@ export function ResetPasswordForm() {
     window.history.replaceState(null, "", window.location.pathname);
   }, []);
 
-  // Nome e data de nascimento são verificados pelo backend, que conhece os dados da conta.
-  const problems = password ? passwordProblems(password, "", "") : [];
-  const mismatch = confirmation.length > 0 && confirmation !== password;
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!token || problems.length > 0 || mismatch) {
+    // Nome e data de nascimento são verificados pelo backend, que conhece os dados da conta.
+    const problems = passwordProblems(password, "", "");
+    const validationErrors = {
+      password: problems.length > 0 ? passwordErrorMessage(problems) : undefined,
+      confirmation: confirmation !== password ? "As senhas não conferem." : undefined,
+    };
+    setErrors(validationErrors);
+    if (!token || validationErrors.password || validationErrors.confirmation) {
       return;
     }
     setError(null);
@@ -79,17 +82,16 @@ export function ResetPasswordForm() {
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit} noValidate>
           <TextField name="password" label="Nova senha" icon="lock" type="password" autoComplete="new-password"
-            placeholder="Crie uma senha" required value={password}
+            placeholder="Crie uma senha" required value={password} error={errors.password}
             onChange={(event) => setPassword(event.target.value)} />
-          <PasswordRules password={password} problems={problems} checksPersonalData={false} />
           <TextField name="confirmation" label="Confirme a nova senha" icon="lock" type="password"
             autoComplete="new-password" placeholder="Repita a senha" required value={confirmation}
-            error={mismatch ? "As senhas não conferem." : undefined}
+            error={errors.confirmation}
             onChange={(event) => setConfirmation(event.target.value)} />
           <button
             type="submit"
             className="block"
-            disabled={submitting || !token || !password || problems.length > 0 || confirmation !== password}
+            disabled={submitting || !token || !password || !confirmation}
           >
             {submitting ? "Salvando..." : "Salvar senha"}
           </button>

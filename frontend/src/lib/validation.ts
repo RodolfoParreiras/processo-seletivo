@@ -72,6 +72,12 @@ export function passwordProblems(password: string, fullName: string, birthDate: 
   return problems;
 }
 
+/** Mensagem única com os requisitos que a senha ainda não atende. */
+export function passwordErrorMessage(problems: string[]): string {
+  const items = problems.map((problem) => problem.replace(/\.$/, "").replace(/^./, (first) => first.toLowerCase()));
+  return `A senha não atende aos requisitos: ${items.join("; ")}.`;
+}
+
 export const UFS = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
   "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",

@@ -716,39 +716,6 @@ main.auth-page:has(.auth-card.wide) {
   font-weight: 600;
 }
 
-.password-rules {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 4px 12px;
-  font-size: 0.8125rem;
-  color: var(--color-muted);
-}
-
-.password-rules li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.password-rules li.met {
-  color: var(--color-lime-dark);
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .numbered-sections > fieldset > legend .required-mark {
   margin-left: -6px;
 }
