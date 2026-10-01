@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/Hero";
-import { PositionList } from "@/features/process/ProcessAccordion";
+import { PositionList } from "@/features/process/ProcessList";
 import { formatDateTime, type ProcessDetail, STAGE_LABELS, STATUS_LABELS } from "@/features/process/types";
 import { ApiError, apiGet } from "@/lib/api";
 

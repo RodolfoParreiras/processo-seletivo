@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ProcessAccordion } from "./ProcessAccordion";
+import { ProcessList } from "./ProcessList";
 import { type ProcessStatus, STATUS_LABELS } from "./types";
 
 const FILTERS: (ProcessStatus | null)[] = [
@@ -32,7 +32,7 @@ export function ProcessBrowser() {
           </button>
         ))}
       </div>
-      <ProcessAccordion
+      <ProcessList
         key={status ?? "todos"}
         status={status ?? undefined}
         emptyMessage={status ? "Nenhum processo nesta situação." : "Nenhum processo seletivo publicado no momento."}
