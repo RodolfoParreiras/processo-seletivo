@@ -96,6 +96,16 @@ public class LoginUseCase {
             throw invalidCredentials();
         }
 
+        if (accountType == AccountType.ADMIN) {
+            // Contas administrativas só concluem o login após o segundo fator (AdminMfaService);
+            // até lá a contagem de falhas não é zerada.
+            auditService.record(new AuditService.Entry(
+                    "LOGIN_PASSWORD_ACCEPTED", AuditService.Outcome.SUCCESS, account.getId(), "USER_ACCOUNT",
+                    account.getId().toString(), ipAddress, Map.of("accountType", accountType.name())));
+            return new AuthenticationResult(account.getId(), accountType, displayName(account), permissions(account),
+                    account.isMfaEnabled());
+        }
+
         account.registerSuccessfulLogin(now);
         auditService.record(new AuditService.Entry(
                 "LOGIN", AuditService.Outcome.SUCCESS, account.getId(), "USER_ACCOUNT",

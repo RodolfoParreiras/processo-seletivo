@@ -24,6 +24,9 @@ public abstract class PostgresIntegrationTest {
     protected static final String OWNER_USER = "ps_owner_test";
     protected static final String APP_USER = "ps_app_test";
 
+    /** Chave fictícia de teste para cifrar segredos de MFA (32 bytes em Base64). */
+    public static final String MFA_TEST_KEY = "dGVzdC1rZXktMzItYnl0ZXMtcGFyYS1tZmEtYWVzISE=";
+
     // Credenciais fictícias, válidas apenas dentro do container efêmero de teste.
     private static final String OWNER_PASSWORD = "owner-test-password";
     private static final String APP_PASSWORD = "app-test-password";
@@ -67,5 +70,6 @@ public abstract class PostgresIntegrationTest {
         registry.add("STORAGE_PATH", () -> STORAGE_DIRECTORY.toString());
         // Transições automáticas são testadas chamando o caso de uso diretamente.
         registry.add("SCHEDULING_ENABLED", () -> "false");
+        registry.add("MFA_ENCRYPTION_KEY", () -> MFA_TEST_KEY);
     }
 }

@@ -111,6 +111,8 @@ app:
     account-lock-duration: 15m
     password-reset-token-validity: 30m
     password-setup-token-validity: 24h
+    # Chave AES-256 (Base64) que cifra os segredos de MFA. Gerar com: openssl rand -base64 32
+    mfa-encryption-key: ${MFA_ENCRYPTION_KEY}
   # Provisionamento único do primeiro Administrador Geral (ver README).
   bootstrap-admin:
     enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}

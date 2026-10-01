@@ -46,6 +46,19 @@ public class UserAccount {
     @Column(name = "password_changed_at", nullable = false)
     private Instant passwordChangedAt;
 
+    // Segredo TOTP cifrado (AES-GCM); nulo enquanto o segundo fator não foi configurado.
+    @Column(name = "mfa_secret_encrypted")
+    private String mfaSecretEncrypted;
+
+    @Column(name = "mfa_enabled_at")
+    private Instant mfaEnabledAt;
+
+    @Column(name = "mfa_last_used_step")
+    private Long mfaLastUsedStep;
+
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -91,6 +104,36 @@ public class UserAccount {
     public void registerSuccessfulLogin(Instant now) {
         failedLoginAttempts = 0;
         lockedUntil = null;
+        lastLoginAt = now;
+        updatedAt = now;
+    }
+
+    public void enableMfa(String encryptedSecret, Instant now) {
+        mfaSecretEncrypted = encryptedSecret;
+        mfaEnabledAt = now;
+        mfaLastUsedStep = null;
+        updatedAt = now;
+    }
+
+    /** Exige novo cadastro do autenticador no próximo login (ex.: celular perdido). */
+    public void resetMfa(Instant now) {
+        mfaSecretEncrypted = null;
+        mfaEnabledAt = null;
+        mfaLastUsedStep = null;
+        updatedAt = now;
+    }
+
+    public void registerMfaUse(long step) {
+        mfaLastUsedStep = step;
+    }
+
+    public void deactivate(Instant now) {
+        active = false;
+        updatedAt = now;
+    }
+
+    public void activate(Instant now) {
+        active = true;
         updatedAt = now;
     }
 
@@ -137,5 +180,21 @@ public class UserAccount {
 
     public Instant getLockedUntil() {
         return lockedUntil;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEnabledAt != null;
+    }
+
+    public String getMfaSecretEncrypted() {
+        return mfaSecretEncrypted;
+    }
+
+    public Long getMfaLastUsedStep() {
+        return mfaLastUsedStep;
+    }
+
+    public Instant getLastLoginAt() {
+        return lastLoginAt;
     }
 }

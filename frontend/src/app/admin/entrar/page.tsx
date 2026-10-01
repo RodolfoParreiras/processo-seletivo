@@ -1,12 +1,5 @@
-import { LoginForm } from "@/features/auth/LoginForm";
+import { AdminLoginFlow } from "@/features/auth/AdminLoginFlow";
 
 export default function AdminLoginPage() {
-  return (
-    <LoginForm
-      title="Área Administrativa"
-      endpoint="/api/admin/auth/login"
-      redirectTo="/admin"
-      forgotPasswordHref="/admin/esqueci-senha"
-    />
-  );
+  return <AdminLoginFlow />;
 }

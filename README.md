@@ -42,6 +42,7 @@ O arquivo `.env` nunca deve ser versionado.
 | `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS` | Autenticação e STARTTLS no SMTP (em produção: `true`) |
 | `MAIL_FROM` | Remetente dos e-mails |
 | `BOOTSTRAP_ADMIN_*` | Provisionamento do primeiro Administrador Geral (ver abaixo) |
+| `MFA_ENCRYPTION_KEY` | Chave AES-256 em Base64 que cifra os segredos de MFA (`openssl rand -base64 32`). Não trocar depois de em uso |
 | `STORAGE_PATH` | Diretório privado dos arquivos enviados (no compose: volume `app-storage`, que deve entrar no backup) |
 | `SCHEDULING_ENABLED` | Abertura/encerramento automático das inscrições (padrão `true`) |
 
@@ -80,7 +81,8 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | GET | `/api/auth/csrf` | Público; emite o cookie `XSRF-TOKEN` |
 | POST | `/api/auth/register` | Público; cadastro de candidato |
 | POST | `/api/auth/login` | Público; login de candidato |
-| POST | `/api/admin/auth/login` | Público; login administrativo |
+| POST | `/api/admin/auth/login` | Público; 1ª etapa (senha). Abre o desafio do segundo fator |
+| POST | `/api/admin/auth/mfa/setup`, `/api/admin/auth/mfa/verify` | Após a senha; cadastro do autenticador e código TOTP. Só o `verify` cria a sessão |
 | POST | `/api/auth/forgot-password`, `/api/admin/auth/forgot-password` | Público; resposta sempre genérica |
 | POST | `/api/auth/reset-password` | Público; exige token válido |
 | GET | `/api/auth/session` | Autenticado |
@@ -114,6 +116,12 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | GET | `/api/admin/processes/{id}/documents`, `/{doc}/file` | `PROCESSO_VISUALIZAR`; inclui retirados |
 | POST | `/api/admin/processes/{id}/documents` (multipart: `name`, `file`) | `RESULTADO_PUBLICAR` |
 | POST | `/api/admin/processes/{id}/documents/{doc}/withdraw` | `RESULTADO_PUBLICAR`; exige `reason` |
+| GET, POST | `/api/admin/administrators` | `USUARIO_GERENCIAR` |
+| POST | `/api/admin/administrators/{id}/deactivate`, `/activate`, `/reset-mfa`, `/resend-setup-link` | `USUARIO_GERENCIAR` |
+| PUT | `/api/admin/administrators/{id}/roles` | `PERMISSAO_GERENCIAR` |
+| GET | `/api/admin/roles` | `PERMISSAO_GERENCIAR` ou `USUARIO_GERENCIAR` |
+| GET, POST, PUT, DELETE | `/api/admin/permissions`, `/api/admin/roles[/{código}]` | `PERMISSAO_GERENCIAR` |
+| GET | `/api/admin/audit` | `AUDITORIA_VISUALIZAR`; filtros: ação, resultado, autor, alvo, período |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 

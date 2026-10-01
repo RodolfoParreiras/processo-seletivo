@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.gov.pmps.processoseletivo.PostgresIntegrationTest;
 import br.gov.pmps.processoseletivo.application.usecase.BootstrapAdministratorUseCase;
+import br.gov.pmps.processoseletivo.support.AdminTestAccounts;
 import br.gov.pmps.processoseletivo.support.RecordingEmailGateway;
 import jakarta.servlet.http.Cookie;
 import java.util.ArrayList;
@@ -333,7 +334,34 @@ class AuthenticationFlowTest extends PostgresIntegrationTest {
             String token = RecordingEmailGateway.extractToken(emailGateway.awaitMessageTo(email));
 
             resetPassword(token, "Admin#Forte2025").andExpect(status().isNoContent());
-            Cookie session = login("/api/admin/auth/login", cpf, "Admin#Forte2025");
+
+            // Senha correta só abre o desafio do segundo fator; ainda não há acesso.
+            MvcResult passwordStep = loginRequest("/api/admin/auth/login", cpf, "Admin#Forte2025")
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.mfaRequired").value(true))
+                    .andExpect(jsonPath("$.enrollmentRequired").value(true))
+                    .andReturn();
+            Cookie pending = passwordStep.getResponse().getCookie(SESSION_COOKIE);
+            mockMvc.perform(get("/api/auth/session").cookie(pending)).andExpect(status().isUnauthorized());
+
+            String setupBody = mockMvc.perform(post("/api/admin/auth/mfa/setup").with(csrf()).cookie(pending))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.provisioningUri", org.hamcrest.Matchers.startsWith("otpauth://totp/")))
+                    .andReturn().getResponse().getContentAsString();
+            String secret = setupBody.replaceAll(".*\"secret\":\"([A-Z2-7]+)\".*", "$1");
+
+            mockMvc.perform(post("/api/admin/auth/mfa/verify").with(csrf()).cookie(pending)
+                            .contentType(MediaType.APPLICATION_JSON).content("{\"code\": \"000000\"}"))
+                    .andExpect(status().isUnauthorized());
+            Cookie session = mockMvc.perform(post("/api/admin/auth/mfa/verify").with(csrf()).cookie(pending)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"code\": \"%s\"}".formatted(AdminTestAccounts.currentCode(secret))))
+                    .andExpect(status().isOk())
+                    .andReturn().getResponse().getCookie(SESSION_COOKIE);
+            assertThat(session.getValue()).isNotEqualTo(pending.getValue());
+            assertThat(jdbcTemplate.queryForObject(
+                    "select mfa_secret_encrypted from user_account where cpf = ? and account_type = 'ADMIN'",
+                    String.class, cpf)).isNotNull().doesNotContain(secret);
 
             mockMvc.perform(get("/api/auth/session").cookie(session))
                     .andExpect(status().isOk())

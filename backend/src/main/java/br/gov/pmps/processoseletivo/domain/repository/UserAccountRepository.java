@@ -37,6 +37,24 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, UUID> 
             """, nativeQuery = true)
     List<String> findPermissionCodes(@Param("accountId") UUID accountId);
 
+    @Query(value = "select role_code from user_account_role where user_account_id = :accountId", nativeQuery = true)
+    List<String> findRoleCodes(@Param("accountId") UUID accountId);
+
+    @Modifying
+    @Query(value = "delete from user_account_role where user_account_id = :accountId", nativeQuery = true)
+    void removeRoles(@Param("accountId") UUID accountId);
+
+    /** Administradores ativos com o perfil informado, exceto a conta indicada. */
+    @Query(value = """
+            select count(*) from user_account a
+              join user_account_role ur on ur.user_account_id = a.id
+             where ur.role_code = :roleCode and a.active and a.id <> :excludedAccountId
+            """, nativeQuery = true)
+    long countActiveWithRoleExcluding(
+            @Param("roleCode") String roleCode, @Param("excludedAccountId") UUID excludedAccountId);
+
+    List<UserAccount> findByAccountTypeOrderByCreatedAtAsc(AccountType accountType);
+
     @Modifying
     @Query(value = "insert into user_account_role (user_account_id, role_code) values (:accountId, :roleCode)",
             nativeQuery = true)

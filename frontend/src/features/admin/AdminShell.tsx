@@ -21,6 +21,9 @@ export function AdminShell({ children }: { children: (context: AdminContext) => 
             <nav className="actions" aria-label="Área administrativa">
               <Link href="/admin">Início</Link>
               {can("PROCESSO_VISUALIZAR") && <Link href="/admin/processos">Processos</Link>}
+              {can("USUARIO_GERENCIAR") && <Link href="/admin/administradores">Administradores</Link>}
+              {can("PERMISSAO_GERENCIAR") && <Link href="/admin/perfis">Perfis</Link>}
+              {can("AUDITORIA_VISUALIZAR") && <Link href="/admin/auditoria">Auditoria</Link>}
               <span className="hint">{session.displayName}</span>
               <button type="button" className="secondary" onClick={logout}>
                 Sair

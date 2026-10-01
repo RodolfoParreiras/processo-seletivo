@@ -138,3 +138,14 @@ Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
 - As situações internas "Resultado preliminar" e "Resultado definitivo" foram substituídas pela etapa (V012).
 - Ao publicar, a etapa inicial é Edital Disponível. O administrador pode escolher qualquer etapa da lista; toda mudança fica em histórico e na auditoria. Permissão: `RESULTADO_PUBLICAR`.
 - Arquivar exige inscrições encerradas e etapa Resultado Final.
+
+## Administração (fase 7)
+
+- **MFA obrigatório** para todas as contas administrativas (especificação §76): aplicativo autenticador (TOTP, 6 dígitos, 30 s). No primeiro acesso, o administrador cadastra o aplicativo lendo um QR code. Códigos já usados não são aceitos de novo, e códigos errados contam para o bloqueio da conta.
+- O segredo do MFA é cifrado no banco (AES-256-GCM) com a chave `MFA_ENCRYPTION_KEY`, mantida fora do banco e do código.
+- Se o administrador perder o celular, quem tem `USUARIO_GERENCIAR` redefine o segundo fator; no próximo acesso ele cadastra o aplicativo de novo.
+- Novos administradores são criados sem senha: recebem por e-mail um link de definição de senha válido por 24 horas.
+- Ninguém altera os próprios perfis, desativa a própria conta ou redefine o próprio segundo fator. Deve existir sempre ao menos um Administrador Geral ativo.
+- Ao mudar perfis ou permissões, as sessões dos administradores afetados são encerradas para que as novas permissões valham no próximo acesso.
+- O perfil Administrador Geral é do sistema e não pode ser alterado. Perfis personalizados só podem ser excluídos sem administradores vinculados.
+- A auditoria é somente consulta (`AUDITORIA_VISUALIZAR`). Para ações de candidatos, a consulta mostra apenas o tipo de conta, não o nome (minimização).

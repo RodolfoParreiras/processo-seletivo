@@ -48,7 +48,10 @@ public class SecurityConfiguration {
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
                                 "/api/admin/auth/login",
-                                "/api/admin/auth/forgot-password").permitAll()
+                                "/api/admin/auth/forgot-password",
+                                // Protegidos pelo estado pendente criado após a senha (AdminMfaService).
+                                "/api/admin/auth/mfa/setup",
+                                "/api/admin/auth/mfa/verify").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/session").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/auth/password").authenticated()
