@@ -39,7 +39,7 @@ function StartApplication() {
           <>
             <div className="alert alert-error" role="alert">{error}</div>
             <div className="actions">
-              <Link className="button" href="/candidato">Minhas candidaturas</Link>
+              <Link className="button" href="/candidato/candidaturas">Minhas candidaturas</Link>
               <Link className="button secondary" href="/">Voltar aos processos</Link>
             </div>
           </>

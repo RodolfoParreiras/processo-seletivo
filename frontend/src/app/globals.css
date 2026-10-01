@@ -623,13 +623,13 @@ main.auth-page:has(.auth-card.wide) {
   max-width: 960px;
 }
 
-/* No cadastro, campos curtos ficam em três colunas em telas largas. */
+/* Cadastro e "Meus Dados": campos curtos em três colunas em telas largas. */
 @media (min-width: 900px) {
-  .auth-card.wide .grid {
+  .three-columns .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .auth-card.wide .grid .span-2 {
+  .three-columns .grid .span-2 {
     grid-column: span 2;
   }
 }
@@ -718,4 +718,109 @@ main.auth-page:has(.auth-card.wide) {
 
 .numbered-sections > fieldset > legend .required-mark {
   margin-left: -6px;
+}
+
+/* ---- Área logada do candidato ---- */
+
+.main-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.main-nav a {
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  color: var(--color-navy);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.main-nav a:hover {
+  background: var(--color-surface-alt);
+}
+
+.main-nav a[aria-current="page"] {
+  background: var(--color-navy-light);
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-options {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  min-width: 190px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.user-menu-options li + li {
+  border-top: 1px solid #f1f5f9;
+}
+
+.user-menu-options a,
+.user-menu-options button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-navy);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.user-menu-options a:hover,
+.user-menu-options button:hover {
+  background: var(--color-surface-alt);
+}
+
+.user-menu-options .logout {
+  color: var(--color-error);
+}
+
+.greeting,
+.page-title {
+  color: var(--color-navy);
+  margin-bottom: 4px;
+}
+
+main > .hint {
+  margin: 0 0 16px;
+}
+
+.page-title + .card,
+.page-title + .hint {
+  margin-top: 12px;
+}
+
+.confirm-box {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 12px 16px 4px;
+  max-width: 420px;
+}
+
+.confirm-box .hint {
+  margin: 0 0 8px;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }

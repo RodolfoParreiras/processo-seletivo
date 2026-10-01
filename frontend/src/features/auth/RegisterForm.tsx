@@ -108,7 +108,7 @@ export function RegisterForm() {
           <p className="hint">Campos marcados com * são obrigatórios.</p>
         </div>
         <ErrorAlert error={apiError} />
-        <form className="numbered-sections" onSubmit={handleSubmit} noValidate>
+        <form className="numbered-sections three-columns" onSubmit={handleSubmit} noValidate>
           <fieldset>
             <legend>Identificação</legend>
             <div className="grid">

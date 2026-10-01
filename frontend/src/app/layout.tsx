@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
+import { SiteHeaderNav } from "@/components/SiteHeaderNav";
 import "@tabler/icons-webfont/dist/tabler-icons.min.css";
 import "./globals.css";
 
@@ -39,9 +40,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-prefeitura.png" alt="Prefeitura Municipal de Paraíba do Sul" width={220} height={44} />
             </Link>
-            <nav className="header-actions" aria-label="Acesso do candidato">
-              <Link href="/entrar" className="button">Área do Candidato</Link>
-            </nav>
+            <SiteHeaderNav />
           </div>
         </header>
         {children}

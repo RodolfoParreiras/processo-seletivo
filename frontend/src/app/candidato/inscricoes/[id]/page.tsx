@@ -228,7 +228,7 @@ function ApplicationPage({ applicationId }: { applicationId: string }) {
               <button type="button" className="secondary"
                 onClick={() => run(async () => {
                   await apiDelete(base);
-                  router.replace("/candidato");
+                  router.replace("/candidato/candidaturas");
                 })}>
                 Descartar rascunho
               </button>
@@ -237,7 +237,7 @@ function ApplicationPage({ applicationId }: { applicationId: string }) {
         </>
       )}
       <div className="actions">
-        <Link href="/candidato">Voltar para a Área do Candidato</Link>
+        <Link href="/candidato/candidaturas">Voltar para Minhas Candidaturas</Link>
       </div>
     </div>
   );
