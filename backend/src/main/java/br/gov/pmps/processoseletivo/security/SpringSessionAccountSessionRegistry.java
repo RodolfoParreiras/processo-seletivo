@@ -21,4 +21,13 @@ public class SpringSessionAccountSessionRegistry implements AccountSessionRegist
                 .keySet()
                 .forEach(sessionRepository::deleteById);
     }
+
+    @Override
+    public void terminateOtherSessions(UUID accountId, String currentSessionId) {
+        sessionRepository.findByPrincipalName(accountId.toString())
+                .keySet()
+                .stream()
+                .filter(sessionId -> !sessionId.equals(currentSessionId))
+                .forEach(sessionRepository::deleteById);
+    }
 }

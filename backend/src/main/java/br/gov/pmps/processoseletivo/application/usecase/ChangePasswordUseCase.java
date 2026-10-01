@@ -1,12 +1,11 @@
 package br.gov.pmps.processoseletivo.application.usecase;
 
-import br.gov.pmps.processoseletivo.application.dto.ResetPasswordRequest;
+import br.gov.pmps.processoseletivo.application.dto.ChangePasswordRequest;
 import br.gov.pmps.processoseletivo.application.service.AccountPasswordPolicy;
 import br.gov.pmps.processoseletivo.application.service.AccountSecurityNotice;
 import br.gov.pmps.processoseletivo.application.service.AccountSessionRegistry;
 import br.gov.pmps.processoseletivo.application.service.AuditService;
-import br.gov.pmps.processoseletivo.application.service.PasswordResetTokenIssuer;
-import br.gov.pmps.processoseletivo.domain.model.PasswordResetToken;
+import br.gov.pmps.processoseletivo.application.service.CurrentPasswordVerifier;
 import br.gov.pmps.processoseletivo.domain.model.UserAccount;
 import br.gov.pmps.processoseletivo.domain.repository.PasswordResetTokenRepository;
 import br.gov.pmps.processoseletivo.domain.repository.UserAccountRepository;
@@ -14,19 +13,19 @@ import br.gov.pmps.processoseletivo.shared.error.BusinessException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Troca de senha com a sessão ativa, para candidatos e administradores. */
 @Service
-public class ResetPasswordUseCase {
+public class ChangePasswordUseCase {
 
-    static final String INVALID_LINK = "Link inválido ou expirado. Solicite um novo link de redefinição de senha.";
-
-    private final PasswordResetTokenRepository tokenRepository;
     private final UserAccountRepository accountRepository;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final CurrentPasswordVerifier currentPasswordVerifier;
     private final AccountPasswordPolicy passwordPolicy;
     private final PasswordEncoder passwordEncoder;
     private final AccountSessionRegistry sessionRegistry;
@@ -34,17 +33,19 @@ public class ResetPasswordUseCase {
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
-    public ResetPasswordUseCase(
-            PasswordResetTokenRepository tokenRepository,
+    public ChangePasswordUseCase(
             UserAccountRepository accountRepository,
+            PasswordResetTokenRepository tokenRepository,
+            CurrentPasswordVerifier currentPasswordVerifier,
             AccountPasswordPolicy passwordPolicy,
             PasswordEncoder passwordEncoder,
             AccountSessionRegistry sessionRegistry,
             AuditService auditService,
             ApplicationEventPublisher eventPublisher,
             Clock clock) {
-        this.tokenRepository = tokenRepository;
         this.accountRepository = accountRepository;
+        this.tokenRepository = tokenRepository;
+        this.currentPasswordVerifier = currentPasswordVerifier;
         this.passwordPolicy = passwordPolicy;
         this.passwordEncoder = passwordEncoder;
         this.sessionRegistry = sessionRegistry;
@@ -53,34 +54,24 @@ public class ResetPasswordUseCase {
         this.clock = clock;
     }
 
-    @Transactional
-    public void execute(ResetPasswordRequest request, String ipAddress) {
+    // Senha atual errada precisa ser gravada para o bloqueio; nenhuma alteração ocorre antes das verificações.
+    @Transactional(noRollbackFor = BusinessException.class)
+    public void execute(UUID accountId, ChangePasswordRequest request, String currentSessionId, String ipAddress) {
         Instant now = clock.instant();
-        PasswordResetToken token = tokenRepository.findForUse(PasswordResetTokenIssuer.hash(request.token()))
-                .filter(candidateToken -> candidateToken.isUsable(now))
-                .orElseThrow(ResetPasswordUseCase::invalidLink);
-        UserAccount account = accountRepository.findById(token.getUserAccountId())
-                .filter(UserAccount::isActive)
-                .orElseThrow(ResetPasswordUseCase::invalidLink);
+        UserAccount account = accountRepository.findById(accountId).orElseThrow();
 
+        currentPasswordVerifier.verify(account, request.currentPassword(), "PASSWORD_CHANGED", ipAddress, now);
         passwordPolicy.validate(account, request.newPassword());
 
         account.changePassword(passwordEncoder.encode(request.newPassword()), now);
-        token.markUsed(now);
+        // Links de redefinição pendentes deixam de valer.
         tokenRepository.invalidateAll(account.getId(), now);
-        sessionRegistry.terminateAllSessions(account.getId());
-        // Na definição inicial (primeiro acesso) não há senha anterior a avisar.
-        if (token.getPurpose() == PasswordResetToken.Purpose.PASSWORD_RESET) {
-            eventPublisher.publishEvent(
-                    new AccountSecurityNotice(account.getEmail(), AccountSecurityNotice.Type.PASSWORD_CHANGED));
-        }
+        sessionRegistry.terminateOtherSessions(account.getId(), currentSessionId);
+        eventPublisher.publishEvent(
+                new AccountSecurityNotice(account.getEmail(), AccountSecurityNotice.Type.PASSWORD_CHANGED));
 
         auditService.record(new AuditService.Entry(
                 "PASSWORD_CHANGED", AuditService.Outcome.SUCCESS, account.getId(), "USER_ACCOUNT",
-                account.getId().toString(), ipAddress, Map.of("method", token.getPurpose().name())));
-    }
-
-    private static BusinessException invalidLink() {
-        return new BusinessException(HttpStatus.BAD_REQUEST, INVALID_LINK);
+                account.getId().toString(), ipAddress, Map.of("method", "AUTHENTICATED_CHANGE")));
     }
 }

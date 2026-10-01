@@ -72,3 +72,12 @@ Todos os campos do §7 são obrigatórios, exceto o complemento do endereço.
 - PostgreSQL 18 com dois usuários: dono do schema `app` (usado apenas pelo Flyway) e usuário da aplicação (apenas DML).
 - Frontend e API servidos na mesma origem pelo Nginx; CORS não é habilitado.
 - Redis não é utilizado até haver necessidade concreta (especificação §60).
+
+## Meus Dados (fase 3)
+
+- O candidato pode alterar todos os dados do cadastro, exceto o CPF.
+- Alterações não afetam inscrições já realizadas (snapshot, especificação §8).
+- Troca de e-mail e troca de senha com sessão ativa exigem a senha atual. Erros de senha atual contam para o bloqueio da conta.
+- Após troca de e-mail, o endereço anterior recebe aviso. Após troca ou redefinição de senha, o titular recebe aviso por e-mail.
+- Troca de senha com sessão ativa encerra as demais sessões da conta e mantém a sessão atual.
+- A auditoria registra apenas os nomes dos campos alterados, nunca os valores.

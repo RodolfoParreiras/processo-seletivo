@@ -49,6 +49,8 @@ public class SecurityConfiguration {
                                 "/api/admin/auth/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/session").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/auth/password").authenticated()
+                        .requestMatchers("/api/candidate/**").hasRole("CANDIDATE")
                         .anyRequest().denyAll())
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 // Autenticação por sessão em cookie: CSRF com token em cookie lido pelo frontend e reenviado em header.

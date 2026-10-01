@@ -102,6 +102,11 @@ public class UserAccount {
         updatedAt = now;
     }
 
+    public void changeEmail(String newEmail, Instant now) {
+        email = normalizeEmail(newEmail);
+        updatedAt = now;
+    }
+
     public UUID getId() {
         return id;
     }

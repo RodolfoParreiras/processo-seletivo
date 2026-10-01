@@ -84,14 +84,9 @@ public class RegisterCandidateUseCase {
 
     private static Candidate newCandidate(RegisterCandidateRequest request, UserAccount account, Instant now) {
         Set<Adaptation> adaptations = request.adaptations() == null ? Set.of() : request.adaptations();
-        Address address = new Address(
-                request.cep(),
-                request.street().trim(),
-                request.addressNumber().trim(),
-                request.complement() == null || request.complement().isBlank() ? null : request.complement().trim(),
-                request.neighborhood().trim(),
-                request.city().trim(),
-                request.uf());
+        Address address = Address.normalized(
+                request.cep(), request.street(), request.addressNumber(), request.complement(),
+                request.neighborhood(), request.city(), request.uf());
         try {
             return new Candidate(
                     account.getId(),

@@ -6,4 +6,7 @@ import java.util.UUID;
 public interface AccountSessionRegistry {
 
     void terminateAllSessions(UUID accountId);
+
+    /** Encerra as demais sessões, mantendo a sessão de quem fez a alteração. */
+    void terminateOtherSessions(UUID accountId, String currentSessionId);
 }

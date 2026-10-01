@@ -73,6 +73,21 @@ public class SessionLoginService {
         csrfAuthenticationStrategy.onAuthentication(authentication, request, response);
     }
 
+    /** Mantém o nome exibido em sincronia após o titular alterar o cadastro. */
+    public void updateDisplayName(String displayName, HttpServletRequest request, HttpServletResponse response) {
+        Authentication current = contextHolderStrategy.getContext().getAuthentication();
+        if (current == null || !(current.getPrincipal() instanceof AuthenticatedAccount account)) {
+            return;
+        }
+        AuthenticatedAccount updatedPrincipal =
+                new AuthenticatedAccount(account.accountId(), account.accountType(), displayName);
+        SecurityContext context = contextHolderStrategy.createEmptyContext();
+        context.setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated(updatedPrincipal, null, current.getAuthorities()));
+        contextHolderStrategy.setContext(context);
+        securityContextRepository.saveContext(context, request, response);
+    }
+
     public void terminate(AuthenticatedAccount account, HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session != null) {

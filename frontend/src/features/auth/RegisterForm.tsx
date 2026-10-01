@@ -1,138 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { ErrorAlert, SuccessAlert } from "@/components/FormAlert";
-import { ApiError, apiPost } from "@/lib/api";
 import {
-  ADAPTATIONS,
-  isValidCpf,
-  maskCep,
-  maskCpf,
-  maskPhone,
-  onlyDigits,
-  passwordProblems,
-  UFS,
-} from "@/lib/validation";
+  EMPTY_PERSONAL_DATA,
+  type PersonalData,
+  PersonalDataFields,
+  TextField,
+  toPersonalDataPayload,
+  validatePersonalData,
+} from "@/features/candidate/PersonalDataFields";
+import { ApiError, apiPost } from "@/lib/api";
+import { isValidCpf, maskCpf, onlyDigits, passwordProblems } from "@/lib/validation";
 
-type Adaptation = (typeof ADAPTATIONS)[number]["value"];
-
-interface FormState {
+interface Credentials {
   cpf: string;
-  fullName: string;
-  birthDate: string;
-  motherName: string;
   email: string;
-  phone: string;
-  cep: string;
-  street: string;
-  addressNumber: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  uf: string;
   password: string;
   passwordConfirmation: string;
-  hasDisability: "" | "SIM" | "NAO";
-  adaptations: Adaptation[];
 }
 
-const INITIAL_STATE: FormState = {
-  cpf: "",
-  fullName: "",
-  birthDate: "",
-  motherName: "",
-  email: "",
-  phone: "",
-  cep: "",
-  street: "",
-  addressNumber: "",
-  complement: "",
-  neighborhood: "",
-  city: "",
-  uf: "",
-  password: "",
-  passwordConfirmation: "",
-  hasDisability: "",
-  adaptations: [],
-};
-
-const MASKS: Partial<Record<keyof FormState, (value: string) => string>> = {
-  cpf: maskCpf,
-  phone: maskPhone,
-  cep: maskCep,
-};
-
-function validate(form: FormState): Record<string, string> {
+function validateCredentials(credentials: Credentials, personalData: PersonalData): Record<string, string> {
   const errors: Record<string, string> = {};
-  const required: [keyof FormState, string][] = [
-    ["fullName", "Informe o nome completo."],
-    ["birthDate", "Informe a data de nascimento."],
-    ["motherName", "Informe o nome da mãe."],
-    ["email", "Informe o e-mail."],
-    ["street", "Informe o endereço."],
-    ["addressNumber", "Informe o número."],
-    ["neighborhood", "Informe o bairro."],
-    ["city", "Informe a cidade."],
-    ["uf", "Informe a UF."],
-    ["hasDisability", "Informe se é pessoa com deficiência."],
-  ];
-  for (const [field, message] of required) {
-    if (!String(form[field]).trim()) errors[field] = message;
-  }
-  if (!isValidCpf(form.cpf)) errors.cpf = "CPF inválido.";
-  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = "E-mail inválido.";
-  const phoneLength = onlyDigits(form.phone).length;
-  if (phoneLength < 10 || phoneLength > 11) errors.phone = "Telefone inválido.";
-  if (onlyDigits(form.cep).length !== 8) errors.cep = "CEP inválido.";
-  if (form.birthDate && new Date(form.birthDate) >= new Date()) errors.birthDate = "Data de nascimento inválida.";
-  if (passwordProblems(form.password, form.fullName, form.birthDate).length > 0) {
+  if (!isValidCpf(credentials.cpf)) errors.cpf = "CPF inválido.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email.trim())) errors.email = "E-mail inválido.";
+  if (passwordProblems(credentials.password, personalData.fullName, personalData.birthDate).length > 0) {
     errors.password = "A senha não atende aos requisitos.";
   }
-  if (form.passwordConfirmation !== form.password) errors.passwordConfirmation = "As senhas não conferem.";
-  if (form.hasDisability === "SIM" && form.adaptations.length === 0) {
-    errors.adaptations = "Informe a necessidade de adaptações.";
+  if (credentials.passwordConfirmation !== credentials.password) {
+    errors.passwordConfirmation = "As senhas não conferem.";
   }
   return errors;
 }
 
 export function RegisterForm() {
-  const [form, setForm] = useState<FormState>(INITIAL_STATE);
+  const [personalData, setPersonalData] = useState<PersonalData>(EMPTY_PERSONAL_DATA);
+  const [credentials, setCredentials] = useState<Credentials>({
+    cpf: "",
+    email: "",
+    password: "",
+    passwordConfirmation: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [apiError, setApiError] = useState<ApiError | null>(null);
   const [registered, setRegistered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    const field = event.target.name as keyof FormState;
-    const mask = MASKS[field];
-    const value = mask ? mask(event.target.value) : event.target.value;
-    setForm((current) => ({
-      ...current,
-      [field]: value,
-      ...(field === "hasDisability" && value !== "SIM" ? { adaptations: [] } : {}),
-    }));
-  }
-
-  function toggleAdaptation(adaptation: Adaptation) {
-    setForm((current) => {
-      if (adaptation === "NONE") {
-        return { ...current, adaptations: current.adaptations.includes("NONE") ? [] : ["NONE"] };
-      }
-      const withoutNone = current.adaptations.filter((item) => item !== "NONE");
-      return {
-        ...current,
-        adaptations: withoutNone.includes(adaptation)
-          ? withoutNone.filter((item) => item !== adaptation)
-          : [...withoutNone, adaptation],
-      };
-    });
-  }
+  const setCredential = (field: keyof Credentials, value: string) =>
+    setCredentials((current) => ({ ...current, [field]: field === "cpf" ? maskCpf(value) : value }));
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setApiError(null);
-    const validationErrors = validate(form);
+    const validationErrors = {
+      ...validatePersonalData(personalData),
+      ...validateCredentials(credentials, personalData),
+    };
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       return;
@@ -140,22 +64,10 @@ export function RegisterForm() {
     setSubmitting(true);
     try {
       await apiPost("/api/auth/register", {
-        cpf: onlyDigits(form.cpf),
-        fullName: form.fullName.trim(),
-        birthDate: form.birthDate,
-        motherName: form.motherName.trim(),
-        email: form.email.trim(),
-        phone: onlyDigits(form.phone),
-        cep: onlyDigits(form.cep),
-        street: form.street.trim(),
-        addressNumber: form.addressNumber.trim(),
-        complement: form.complement.trim() || null,
-        neighborhood: form.neighborhood.trim(),
-        city: form.city.trim(),
-        uf: form.uf,
-        password: form.password,
-        hasDisability: form.hasDisability === "SIM",
-        adaptations: form.hasDisability === "SIM" ? form.adaptations : [],
+        ...toPersonalDataPayload(personalData),
+        cpf: onlyDigits(credentials.cpf),
+        email: credentials.email.trim(),
+        password: credentials.password,
       });
       setRegistered(true);
     } catch (caught) {
@@ -182,27 +94,9 @@ export function RegisterForm() {
     );
   }
 
-  const passwordHints = form.password ? passwordProblems(form.password, form.fullName, form.birthDate) : [];
-
-  const input = (name: keyof FormState, label: string, props: Record<string, unknown> = {}) => (
-    <div className="field">
-      <label htmlFor={name}>{label}</label>
-      <input
-        id={name}
-        name={name}
-        value={String(form[name])}
-        onChange={handleChange}
-        aria-invalid={Boolean(errors[name])}
-        aria-describedby={errors[name] ? `${name}-error` : undefined}
-        {...props}
-      />
-      {errors[name] && (
-        <p id={`${name}-error`} className="field-error">
-          {errors[name]}
-        </p>
-      )}
-    </div>
-  );
+  const passwordHints = credentials.password
+    ? passwordProblems(credentials.password, personalData.fullName, personalData.birthDate)
+    : [];
 
   return (
     <main>
@@ -212,98 +106,55 @@ export function RegisterForm() {
         <ErrorAlert error={apiError} />
         <form onSubmit={handleSubmit} noValidate>
           <fieldset>
-            <legend>Dados pessoais</legend>
-            {input("cpf", "CPF", { inputMode: "numeric", autoComplete: "off" })}
-            {input("fullName", "Nome completo", { autoComplete: "name", maxLength: 150 })}
-            <div className="grid">
-              {input("birthDate", "Data de nascimento", { type: "date", autoComplete: "bday" })}
-              {input("phone", "Telefone", { inputMode: "tel", autoComplete: "tel" })}
-            </div>
-            {input("motherName", "Nome da mãe", { maxLength: 150 })}
-            {input("email", "E-mail", { type: "email", autoComplete: "email", maxLength: 254 })}
+            <legend>Identificação</legend>
+            <TextField
+              name="cpf"
+              label="CPF"
+              inputMode="numeric"
+              autoComplete="off"
+              value={credentials.cpf}
+              error={errors.cpf}
+              onChange={(event) => setCredential("cpf", event.target.value)}
+            />
+            <TextField
+              name="email"
+              label="E-mail"
+              type="email"
+              autoComplete="email"
+              maxLength={254}
+              value={credentials.email}
+              error={errors.email}
+              onChange={(event) => setCredential("email", event.target.value)}
+            />
           </fieldset>
 
-          <fieldset>
-            <legend>Endereço</legend>
-            <div className="grid">
-              {input("cep", "CEP", { inputMode: "numeric", autoComplete: "postal-code" })}
-              {input("addressNumber", "Número", { maxLength: 10 })}
-            </div>
-            {input("street", "Endereço", { autoComplete: "address-line1", maxLength: 150 })}
-            {input("complement", "Complemento (opcional)", { autoComplete: "address-line2", maxLength: 60 })}
-            <div className="grid">
-              {input("neighborhood", "Bairro", { maxLength: 80 })}
-              {input("city", "Cidade", { autoComplete: "address-level2", maxLength: 80 })}
-            </div>
-            <div className="field">
-              <label htmlFor="uf">UF</label>
-              <select id="uf" name="uf" value={form.uf} onChange={handleChange} aria-invalid={Boolean(errors.uf)}>
-                <option value="">Selecione</option>
-                {UFS.map((uf) => (
-                  <option key={uf} value={uf}>
-                    {uf}
-                  </option>
-                ))}
-              </select>
-              {errors.uf && <p className="field-error">{errors.uf}</p>}
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Pessoa com deficiência?</legend>
-            <div className="options" role="radiogroup" aria-invalid={Boolean(errors.hasDisability)}>
-              <label>
-                <input
-                  type="radio"
-                  name="hasDisability"
-                  value="SIM"
-                  checked={form.hasDisability === "SIM"}
-                  onChange={handleChange}
-                />{" "}
-                Sim
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="hasDisability"
-                  value="NAO"
-                  checked={form.hasDisability === "NAO"}
-                  onChange={handleChange}
-                />{" "}
-                Não
-              </label>
-            </div>
-            {errors.hasDisability && <p className="field-error">{errors.hasDisability}</p>}
-
-            {form.hasDisability === "SIM" && (
-              <fieldset>
-                <legend>Necessidade de adaptações</legend>
-                <div className="options">
-                  {ADAPTATIONS.map((adaptation) => (
-                    <label key={adaptation.value}>
-                      <input
-                        type="checkbox"
-                        checked={form.adaptations.includes(adaptation.value)}
-                        onChange={() => toggleAdaptation(adaptation.value)}
-                      />{" "}
-                      {adaptation.label}
-                    </label>
-                  ))}
-                </div>
-                {errors.adaptations && <p className="field-error">{errors.adaptations}</p>}
-              </fieldset>
-            )}
-          </fieldset>
+          <PersonalDataFields data={personalData} errors={errors} onChange={setPersonalData} />
 
           <fieldset>
             <legend>Senha de acesso</legend>
-            {input("password", "Senha", { type: "password", autoComplete: "new-password" })}
+            <TextField
+              name="password"
+              label="Senha"
+              type="password"
+              autoComplete="new-password"
+              value={credentials.password}
+              error={errors.password}
+              onChange={(event) => setCredential("password", event.target.value)}
+            />
             <p className="hint">
               Mínimo de 8 caracteres, com letra maiúscula, minúscula, número e caractere especial. Não use seu
               nome, sobrenome ou data de nascimento.
             </p>
             {passwordHints.length > 0 && <p className="field-error">Falta: {passwordHints.join(" ")}</p>}
-            {input("passwordConfirmation", "Confirme a senha", { type: "password", autoComplete: "new-password" })}
+            <TextField
+              name="passwordConfirmation"
+              label="Confirme a senha"
+              type="password"
+              autoComplete="new-password"
+              value={credentials.passwordConfirmation}
+              error={errors.passwordConfirmation}
+              onChange={(event) => setCredential("passwordConfirmation", event.target.value)}
+            />
           </fieldset>
 
           <div className="actions">

@@ -1,11 +1,13 @@
 package br.gov.pmps.processoseletivo.presentation.controller;
 
 import br.gov.pmps.processoseletivo.application.dto.AuthenticationResult;
+import br.gov.pmps.processoseletivo.application.dto.ChangePasswordRequest;
 import br.gov.pmps.processoseletivo.application.dto.ForgotPasswordRequest;
 import br.gov.pmps.processoseletivo.application.dto.LoginRequest;
 import br.gov.pmps.processoseletivo.application.dto.RegisterCandidateRequest;
 import br.gov.pmps.processoseletivo.application.dto.ResetPasswordRequest;
 import br.gov.pmps.processoseletivo.application.dto.SessionResponse;
+import br.gov.pmps.processoseletivo.application.usecase.ChangePasswordUseCase;
 import br.gov.pmps.processoseletivo.application.usecase.LoginUseCase;
 import br.gov.pmps.processoseletivo.application.usecase.RegisterCandidateUseCase;
 import br.gov.pmps.processoseletivo.application.usecase.RequestPasswordResetUseCase;
@@ -25,6 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -42,6 +45,7 @@ public class AuthController {
     private final LoginUseCase login;
     private final RequestPasswordResetUseCase requestPasswordReset;
     private final ResetPasswordUseCase resetPassword;
+    private final ChangePasswordUseCase changePassword;
     private final SessionLoginService sessionLoginService;
 
     public AuthController(
@@ -49,11 +53,13 @@ public class AuthController {
             LoginUseCase login,
             RequestPasswordResetUseCase requestPasswordReset,
             ResetPasswordUseCase resetPassword,
+            ChangePasswordUseCase changePassword,
             SessionLoginService sessionLoginService) {
         this.registerCandidate = registerCandidate;
         this.login = login;
         this.requestPasswordReset = requestPasswordReset;
         this.resetPassword = resetPassword;
+        this.changePassword = changePassword;
         this.sessionLoginService = sessionLoginService;
     }
 
@@ -99,6 +105,18 @@ public class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void resetPassword(@Valid @RequestBody ResetPasswordRequest request, HttpServletRequest httpRequest) {
         resetPassword.execute(request, httpRequest.getRemoteAddr());
+    }
+
+    /** Troca de senha com sessão ativa; as demais sessões da conta são encerradas. */
+    @PutMapping("/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request,
+            HttpServletRequest httpRequest) {
+        AuthenticatedAccount account = (AuthenticatedAccount) authentication.getPrincipal();
+        changePassword.execute(
+                account.accountId(), request, httpRequest.getSession().getId(), httpRequest.getRemoteAddr());
     }
 
     @GetMapping("/session")

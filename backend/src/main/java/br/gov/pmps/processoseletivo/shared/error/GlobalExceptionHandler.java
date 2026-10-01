@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -52,6 +53,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST, "Verifique os campos informados.");
         problem.setProperty("fieldErrors", fieldErrors);
         return ResponseEntity.badRequest().body(problem);
+    }
+
+    /** Violação de constraint (ex.: duas requisições simultâneas com o mesmo dado único). */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ProblemDetail handleDataIntegrity(DataIntegrityViolationException exception) {
+        log.warn("Violação de integridade: {}", exception.getMostSpecificCause().getClass().getSimpleName());
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, "Não foi possível concluir a operação: os dados conflitam com um registro existente.");
     }
 
     /** Devolve ao Spring Security, que responde 401/403; tratá-las aqui viraria um 500. */

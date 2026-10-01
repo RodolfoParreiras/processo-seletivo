@@ -62,10 +62,18 @@ export async function apiGet<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function apiPost<T = void>(path: string, body?: unknown): Promise<T> {
+export function apiPost<T = void>(path: string, body?: unknown): Promise<T> {
+  return sendWithCsrf<T>("POST", path, body);
+}
+
+export function apiPut<T = void>(path: string, body?: unknown): Promise<T> {
+  return sendWithCsrf<T>("PUT", path, body);
+}
+
+async function sendWithCsrf<T>(method: "POST" | "PUT", path: string, body?: unknown): Promise<T> {
   const send = async () =>
     fetch(path, {
-      method: "POST",
+      method,
       credentials: "same-origin",
       headers: {
         "Content-Type": "application/json",

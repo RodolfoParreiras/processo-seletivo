@@ -71,7 +71,7 @@ Não existe usuário ou senha padrão. Para criar o primeiro administrador:
 Se já existir conta administrativa, o provisionamento não faz nada. A operação é registrada na auditoria.
 Os demais administradores serão criados pela área administrativa (fase 7).
 
-## Endpoints de autenticação
+## Endpoints
 
 | Método | Caminho | Acesso |
 |---|---|---|
@@ -83,6 +83,9 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | POST | `/api/auth/reset-password` | Público; exige token válido |
 | GET | `/api/auth/session` | Autenticado |
 | POST | `/api/auth/logout` | Autenticado |
+| PUT | `/api/auth/password` | Autenticado; exige a senha atual e encerra as demais sessões |
+| GET, PUT | `/api/candidate/me` | Candidato; dados do próprio titular da sessão |
+| PUT | `/api/candidate/me/email` | Candidato; exige a senha atual |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 

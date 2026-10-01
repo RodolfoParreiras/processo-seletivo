@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 @Entity
@@ -86,6 +87,42 @@ public class Candidate {
     }
 
     /**
+     * Atualiza o cadastro. Inscrições já realizadas não são afetadas, pois guardam snapshot próprio
+     * (ESPECIFICACAO §8).
+     *
+     * @return nomes dos campos alterados, para auditoria sem registrar os valores
+     */
+    public Set<String> update(
+            PersonalData personalData, Address newAddress, boolean newHasDisability,
+            Set<Adaptation> newAdaptations, Instant now) {
+        validateAdaptations(newHasDisability, newAdaptations);
+        Set<String> changedFields = new TreeSet<>();
+        String newFullName = personalData.fullName().trim();
+        String newMotherName = personalData.motherName().trim();
+        if (!fullName.equals(newFullName)) changedFields.add("fullName");
+        if (!birthDate.equals(personalData.birthDate())) changedFields.add("birthDate");
+        if (!motherName.equals(newMotherName)) changedFields.add("motherName");
+        if (!phone.equals(personalData.phone())) changedFields.add("phone");
+        if (!address.equals(newAddress)) changedFields.add("address");
+        if (hasDisability != newHasDisability) changedFields.add("hasDisability");
+        if (!adaptations.equals(newAdaptations)) changedFields.add("adaptations");
+
+        fullName = newFullName;
+        birthDate = personalData.birthDate();
+        motherName = newMotherName;
+        phone = personalData.phone();
+        address = newAddress;
+        hasDisability = newHasDisability;
+        // Altera a coleção existente em vez de substituí-la, como o Hibernate espera.
+        adaptations.clear();
+        adaptations.addAll(newAdaptations);
+        if (!changedFields.isEmpty()) {
+            updatedAt = now;
+        }
+        return changedFields;
+    }
+
+    /**
      * Pessoa com deficiência deve informar ao menos uma opção; "Nenhuma" não se combina com outras.
      * Quem não é pessoa com deficiência não informa adaptações.
      */
@@ -121,6 +158,18 @@ public class Candidate {
 
     public LocalDate getBirthDate() {
         return birthDate;
+    }
+
+    public String getMotherName() {
+        return motherName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public Address getAddress() {
+        return address;
     }
 
     public boolean hasDisability() {

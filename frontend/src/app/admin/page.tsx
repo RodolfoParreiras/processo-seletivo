@@ -1,5 +1,6 @@
 "use client";
 
+import { ChangePasswordForm } from "@/features/auth/ChangePasswordForm";
 import { SessionGate } from "@/features/auth/SessionGate";
 
 // Área provisória: as funcionalidades administrativas entram a partir da fase 4.
@@ -17,6 +18,8 @@ export default function AdminAreaPage() {
                 Sair
               </button>
             </div>
+            <hr />
+            <ChangePasswordForm fullName={session.displayName} />
           </div>
         </main>
       )}
