@@ -166,8 +166,7 @@ export function ProfileForm() {
   }
 
   return (
-    <section aria-labelledby="profile-title">
-      <h1 id="profile-title" className="page-title">Meus Dados</h1>
+    <section aria-label="Meus Dados">
       <p className="hint">CPF {maskCpf(profile.cpf)} · Campos marcados com * são obrigatórios.</p>
       <ErrorAlert error={apiError} />
       <SuccessAlert message={message} />

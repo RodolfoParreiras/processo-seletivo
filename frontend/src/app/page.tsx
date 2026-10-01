@@ -1,15 +1,10 @@
+import { Hero } from "@/components/Hero";
 import { ProcessAccordion } from "@/features/process/ProcessAccordion";
 
 export default function HomePage() {
   return (
     <>
-      <section className="hero">
-        <div className="container">
-          <div className="eyebrow">Prefeitura Municipal de Paraíba do Sul</div>
-          <h1>Processos Seletivos</h1>
-          <p>Consulte editais, inscreva-se e acompanhe suas candidaturas.</p>
-        </div>
-      </section>
+      <Hero title="Processos Seletivos" subtitle="Consulte editais, inscreva-se e acompanhe suas candidaturas." />
       <main>
         <h2 className="section-title">Processos seletivos</h2>
         <ProcessAccordion emptyMessage="Nenhum processo seletivo publicado no momento." />

@@ -792,21 +792,6 @@ main.auth-page:has(.auth-card.wide) {
   color: var(--color-error);
 }
 
-.greeting,
-.page-title {
-  color: var(--color-navy);
-  margin-bottom: 4px;
-}
-
-main > .hint {
-  margin: 0 0 16px;
-}
-
-.page-title + .card,
-.page-title + .hint {
-  margin-top: 12px;
-}
-
 .confirm-box {
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
