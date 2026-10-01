@@ -119,3 +119,6 @@ Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
 - Deferir exige a permissão `INSCRICAO_DEFERIR`; indeferir exige `INSCRICAO_INDEFERIR`; consultar exige `INSCRICAO_VISUALIZAR`.
 - Dados de pessoa com deficiência e necessidade de adaptações só aparecem para quem tem a permissão `DADOS_PCD_VISUALIZAR` (especificação §9 e §66). O Administrador Geral recebe essa permissão.
 - O download de documento de candidato por administrador é registrado na auditoria (especificação §36).
+- Fluxo após o encerramento das inscrições: análise (deferimento/indeferimento), período de recurso (tratado fora do sistema) e revisão dos indeferimentos. Todas essas etapas ocorrem com o processo em "inscrições encerradas", em que as decisões são permitidas; revisões exigem justificativa.
+- O candidato não recebe e-mail sobre a decisão: a relação é publicada no Diário Oficial e pode ser anexada ao processo em PDF (publicações, fase 9).
+- A coluna de situação por documento foi removida (V010), com autorização da Prefeitura.

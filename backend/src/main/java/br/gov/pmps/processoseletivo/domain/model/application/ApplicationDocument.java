@@ -2,23 +2,15 @@ package br.gov.pmps.processoseletivo.domain.model.application;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Arquivo enviado pelo candidato para um documento exigido. A análise (fase 6) altera a situação. */
+/** Arquivo enviado pelo candidato para um documento exigido. */
 @Entity
 @Table(name = "application_document")
 public class ApplicationDocument {
-
-    public enum Status {
-        PENDENTE,
-        APROVADO,
-        REJEITADO
-    }
 
     @Id
     private UUID id;
@@ -32,10 +24,6 @@ public class ApplicationDocument {
     @Column(name = "file_id", nullable = false, updatable = false)
     private UUID fileId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status;
-
     @Column(name = "uploaded_at", nullable = false, updatable = false)
     private Instant uploadedAt;
 
@@ -47,7 +35,6 @@ public class ApplicationDocument {
         this.applicationId = applicationId;
         this.requirementId = requirementId;
         this.fileId = fileId;
-        this.status = Status.PENDENTE;
         this.uploadedAt = now;
     }
 
@@ -65,10 +52,6 @@ public class ApplicationDocument {
 
     public UUID getFileId() {
         return fileId;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 
     public Instant getUploadedAt() {
