@@ -29,6 +29,11 @@
   box-sizing: border-box;
 }
 
+/* Reserva o espaço da barra de rolagem para o conteúdo não mudar de posição entre páginas curtas e longas. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -608,12 +613,14 @@ button.block,
   margin: 0 0 8px;
 }
 
+/* O cadastro ocupa a mesma largura de conteúdo das demais páginas. */
 main.auth-page:has(.auth-card.wide) {
-  max-width: none;
+  max-width: var(--content-width);
+  padding: 24px 16px;
 }
 
 .auth-card.wide {
-  max-width: 960px;
+  max-width: none;
 }
 
 /* Cadastro e "Meus Dados": campos curtos em três colunas em telas largas. */
