@@ -11,7 +11,6 @@ const FILTERS: (ProcessStatus | null)[] = [
   "INSCRICOES_ENCERRADAS",
   "SUSPENSO",
   "CANCELADO",
-  "ARQUIVADO",
 ];
 
 /** Lista pública de processos com filtro por situação. */
