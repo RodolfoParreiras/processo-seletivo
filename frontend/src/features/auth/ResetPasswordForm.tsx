@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { ErrorAlert, SuccessAlert } from "@/components/FormAlert";
+import { PasswordRules } from "@/features/auth/PasswordRules";
+import { TextField } from "@/features/candidate/PersonalDataFields";
 import { ApiError, apiPost } from "@/lib/api";
 import { passwordProblems } from "@/lib/validation";
 
@@ -45,23 +47,30 @@ export function ResetPasswordForm() {
 
   if (done) {
     return (
-      <main>
-        <div className="card">
-          <h1>Senha definida</h1>
-          <SuccessAlert message="Sua senha foi alterada. Por segurança, todas as sessões abertas foram encerradas." />
-          <div className="actions">
-            <Link className="button" href="/entrar">Entrar como candidato</Link>
-            <Link href="/admin/entrar">Entrar na área administrativa</Link>
+      <main className="auth-page">
+        <div className="card auth-card">
+          <div className="auth-header">
+            <span className="auth-icon"><i className="ti ti-circle-check" aria-hidden="true" /></span>
+            <h1>Senha definida</h1>
           </div>
+          <SuccessAlert message="Sua senha foi alterada. Por segurança, todas as sessões abertas foram encerradas." />
+          <Link className="button block" href="/entrar">Entrar como candidato</Link>
+          <p className="auth-back">
+            <Link href="/admin/entrar">Entrar na área administrativa</Link>
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main>
-      <div className="card">
-        <h1>Definir nova senha</h1>
+    <main className="auth-page">
+      <div className="card auth-card">
+        <div className="auth-header">
+          <span className="auth-icon"><i className="ti ti-lock" aria-hidden="true" /></span>
+          <h1>Definir nova senha</h1>
+          <p className="hint">Campos marcados com * são obrigatórios.</p>
+        </div>
         {token === null && (
           <div className="alert alert-error" role="alert">
             Link inválido. Solicite um novo link de redefinição de senha.
@@ -69,45 +78,21 @@ export function ResetPasswordForm() {
         )}
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit} noValidate>
-          <div className="field">
-            <label htmlFor="password">Nova senha</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              aria-invalid={problems.length > 0}
-              aria-describedby="password-rules"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-            <p id="password-rules" className="hint">
-              Mínimo de 8 caracteres, com letra maiúscula, minúscula, número e caractere especial. Não use seu
-              nome, sobrenome ou data de nascimento.
-            </p>
-            {problems.length > 0 && <p className="field-error">Falta: {problems.join(" ")}</p>}
-          </div>
-          <div className="field">
-            <label htmlFor="confirmation">Confirme a nova senha</label>
-            <input
-              id="confirmation"
-              type="password"
-              autoComplete="new-password"
-              required
-              aria-invalid={mismatch}
-              value={confirmation}
-              onChange={(event) => setConfirmation(event.target.value)}
-            />
-            {mismatch && <p className="field-error">As senhas não conferem.</p>}
-          </div>
-          <div className="actions">
-            <button
-              type="submit"
-              disabled={submitting || !token || !password || problems.length > 0 || confirmation !== password}
-            >
-              {submitting ? "Salvando..." : "Salvar senha"}
-            </button>
-          </div>
+          <TextField name="password" label="Nova senha" icon="lock" type="password" autoComplete="new-password"
+            placeholder="Crie uma senha" required value={password}
+            onChange={(event) => setPassword(event.target.value)} />
+          <PasswordRules password={password} problems={problems} checksPersonalData={false} />
+          <TextField name="confirmation" label="Confirme a nova senha" icon="lock" type="password"
+            autoComplete="new-password" placeholder="Repita a senha" required value={confirmation}
+            error={mismatch ? "As senhas não conferem." : undefined}
+            onChange={(event) => setConfirmation(event.target.value)} />
+          <button
+            type="submit"
+            className="block"
+            disabled={submitting || !token || !password || problems.length > 0 || confirmation !== password}
+          >
+            {submitting ? "Salvando..." : "Salvar senha"}
+          </button>
         </form>
       </div>
     </main>

@@ -11,6 +11,7 @@ import {
   toPersonalDataPayload,
   validatePersonalData,
 } from "@/features/candidate/PersonalDataFields";
+import { PasswordRules } from "@/features/auth/PasswordRules";
 import { ApiError, apiPost } from "@/lib/api";
 import { isValidCpf, maskCpf, onlyDigits, passwordProblems } from "@/lib/validation";
 
@@ -33,19 +34,6 @@ function validateCredentials(credentials: Credentials, personalData: PersonalDat
   }
   return errors;
 }
-
-/** Regras exibidas como lista; cada uma é atendida quando nenhuma das mensagens associadas aparece. */
-const PASSWORD_RULES = [
-  { label: "Mínimo de 8 caracteres", problems: ["No mínimo 8 caracteres."] },
-  { label: "Letra maiúscula", problems: ["Letra maiúscula."] },
-  { label: "Letra minúscula", problems: ["Letra minúscula."] },
-  { label: "Número", problems: ["Número."] },
-  { label: "Caractere especial", problems: ["Caractere especial."] },
-  {
-    label: "Sem nome, sobrenome ou data de nascimento",
-    problems: ["Não pode conter seu nome ou sobrenome.", "Não pode conter sua data de nascimento."],
-  },
-];
 
 export function RegisterForm() {
   const [personalData, setPersonalData] = useState<PersonalData>(EMPTY_PERSONAL_DATA);
@@ -111,10 +99,6 @@ export function RegisterForm() {
   }
 
   const passwordIssues = passwordProblems(credentials.password, personalData.fullName, personalData.birthDate);
-  const passwordRules = PASSWORD_RULES.map((rule) => ({
-    label: rule.label,
-    met: credentials.password.length > 0 && !rule.problems.some((problem) => passwordIssues.includes(problem)),
-  }));
 
   return (
     <main className="auth-page">
@@ -149,6 +133,7 @@ export function RegisterForm() {
                 autoComplete="email"
                 placeholder="Digite seu e-mail"
                 maxLength={254}
+                fieldClassName="span-2"
                 required
                 value={credentials.email}
                 error={errors.email}
@@ -187,15 +172,7 @@ export function RegisterForm() {
                 onChange={(event) => setCredential("passwordConfirmation", event.target.value)}
               />
             </div>
-            <ul className="password-rules" aria-label="Requisitos da senha">
-              {passwordRules.map((rule) => (
-                <li key={rule.label} className={rule.met ? "met" : undefined}>
-                  <i className={rule.met ? "ti ti-circle-check" : "ti ti-circle"} aria-hidden="true" />
-                  {rule.label}
-                  <span className="sr-only">{rule.met ? " (atendido)" : " (pendente)"}</span>
-                </li>
-              ))}
-            </ul>
+            <PasswordRules password={credentials.password} problems={passwordIssues} checksPersonalData />
           </fieldset>
 
           <button type="submit" className="block" disabled={submitting}>

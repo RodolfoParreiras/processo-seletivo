@@ -501,15 +501,20 @@ td {
 
 /* ---- Login ---- */
 
-.auth-page {
+/* Ocupa toda a área entre cabeçalho e rodapé e centraliza o cartão nela. */
+main.auth-page {
+  flex: 1;
   display: flex;
   justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  padding: 40px 16px;
 }
 
 .auth-card {
   width: 100%;
-  max-width: 400px;
-  padding: 28px;
+  max-width: 460px;
+  padding: 36px;
 }
 
 .auth-header {
@@ -610,8 +615,23 @@ button.block,
   margin: 0 0 8px;
 }
 
+main.auth-page:has(.auth-card.wide) {
+  max-width: none;
+}
+
 .auth-card.wide {
-  max-width: 640px;
+  max-width: 960px;
+}
+
+/* No cadastro, campos curtos ficam em três colunas em telas largas. */
+@media (min-width: 900px) {
+  .auth-card.wide .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .auth-card.wide .grid .span-2 {
+    grid-column: span 2;
+  }
 }
 
 .auth-back {
@@ -699,7 +719,7 @@ button.block,
 .password-rules {
   list-style: none;
   padding: 0;
-  margin: 0 0 8px;
+  margin: 0 0 16px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 4px 12px;

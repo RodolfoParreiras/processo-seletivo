@@ -98,6 +98,8 @@ interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: string;
   /** Conteúdo exibido à direita do rótulo, como o link "Esqueci minha senha". */
   labelAside?: ReactNode;
+  /** Classe extra do bloco do campo, para posicioná-lo em grades. */
+  fieldClassName?: string;
 }
 
 /** Marca visual de campo obrigatório; leitores de tela usam o atributo required do campo. */
@@ -105,7 +107,9 @@ export function RequiredMark() {
   return <span className="required-mark" aria-hidden="true"> *</span>;
 }
 
-export function TextField({ name, label, value, error, icon, labelAside, type, required, ...props }: FieldProps) {
+export function TextField({
+  name, label, value, error, icon, labelAside, fieldClassName, type, required, ...props
+}: FieldProps) {
   const [visible, setVisible] = useState(false);
   const isPassword = type === "password";
   const labelElement = (
@@ -117,7 +121,7 @@ export function TextField({ name, label, value, error, icon, labelAside, type, r
   const wrapperClass = ["input-wrap", icon && "with-icon", isPassword && "with-toggle"].filter(Boolean).join(" ");
 
   return (
-    <div className="field">
+    <div className={fieldClassName ? `field ${fieldClassName}` : "field"}>
       {labelAside ? <div className="label-row">{labelElement}{labelAside}</div> : labelElement}
       <div className={wrapperClass}>
         {icon && <i className={`ti ti-${icon}`} aria-hidden="true" />}
@@ -187,7 +191,7 @@ export function PersonalDataFields({ data, errors, onChange }: PersonalDataField
   const text = (
     name: keyof PersonalData,
     label: string,
-    props: Omit<InputHTMLAttributes<HTMLInputElement>, "name" | "value"> = {},
+    props: Omit<FieldProps, "name" | "label" | "value"> = {},
   ) => (
     <TextField
       name={name}
@@ -204,37 +208,39 @@ export function PersonalDataFields({ data, errors, onChange }: PersonalDataField
     <>
       <fieldset>
         <legend>Dados pessoais</legend>
-        {text("fullName", "Nome completo", { autoComplete: "name", maxLength: 150, placeholder: "Digite seu nome completo" })}
         <div className="grid">
+          {text("fullName", "Nome completo", {
+            autoComplete: "name", maxLength: 150, placeholder: "Digite seu nome completo", fieldClassName: "span-2",
+          })}
           {text("birthDate", "Data de nascimento", { type: "date", autoComplete: "bday" })}
+          {text("motherName", "Nome da mãe", {
+            maxLength: 150, placeholder: "Digite o nome da mãe", fieldClassName: "span-2",
+          })}
           {text("phone", "Telefone", { inputMode: "tel", autoComplete: "tel", placeholder: "(00) 00000-0000" })}
         </div>
-        {text("motherName", "Nome da mãe", { maxLength: 150, placeholder: "Digite o nome da mãe" })}
       </fieldset>
 
       <fieldset>
         <legend>Endereço</legend>
         <div className="grid">
           {text("cep", "CEP", { inputMode: "numeric", autoComplete: "postal-code", placeholder: "00000-000" })}
+          {text("street", "Endereço", { autoComplete: "address-line1", maxLength: 150, fieldClassName: "span-2" })}
           {text("addressNumber", "Número", { maxLength: 10 })}
-        </div>
-        {text("street", "Endereço", { autoComplete: "address-line1", maxLength: 150 })}
-        {text("complement", "Complemento", { autoComplete: "address-line2", maxLength: 60, required: false })}
-        <div className="grid">
+          {text("complement", "Complemento", { autoComplete: "address-line2", maxLength: 60, required: false })}
           {text("neighborhood", "Bairro", { maxLength: 80 })}
           {text("city", "Cidade", { autoComplete: "address-level2", maxLength: 80 })}
-        </div>
-        <div className="field">
-          <label htmlFor="uf">UF<RequiredMark /></label>
-          <select id="uf" name="uf" value={data.uf} onChange={handleChange} required aria-invalid={Boolean(errors.uf)}>
-            <option value="">Selecione</option>
-            {UFS.map((uf) => (
-              <option key={uf} value={uf}>
-                {uf}
-              </option>
-            ))}
-          </select>
-          {errors.uf && <p className="field-error">{errors.uf}</p>}
+          <div className="field">
+            <label htmlFor="uf">UF<RequiredMark /></label>
+            <select id="uf" name="uf" value={data.uf} onChange={handleChange} required aria-invalid={Boolean(errors.uf)}>
+              <option value="">Selecione</option>
+              {UFS.map((uf) => (
+                <option key={uf} value={uf}>
+                  {uf}
+                </option>
+              ))}
+            </select>
+            {errors.uf && <p className="field-error">{errors.uf}</p>}
+          </div>
         </div>
       </fieldset>
 
