@@ -55,7 +55,6 @@ export default function PublicProcessPage() {
     );
   }
 
-  const tags = [STATUS_LABELS[process.status], ...(process.stage ? [STAGE_LABELS[process.stage]] : [])];
   const notices = process.notices.filter((notice) => notice.publishedAt);
 
   return (
@@ -64,7 +63,6 @@ export default function PublicProcessPage() {
         title={`${process.number}/${process.year} · ${process.title}`}
         subtitle={process.department}
         back={{ href: "/", label: "Processos seletivos" }}
-        tags={tags}
       />
       <main className="stack">
         <section className="card" aria-label="Período de inscrição">
@@ -77,6 +75,10 @@ export default function PublicProcessPage() {
               <dt>Fim das inscrições</dt>
               <dd>{formatDateTime(process.registrationEnd)}</dd>
             </div>
+            <div className="info-item">
+              <dt>Situação</dt>
+              <dd>{STATUS_LABELS[process.status]}</dd>
+            </div>
             {process.stage && (
               <div className="info-item">
                 <dt>Etapa atual</dt>
@@ -84,7 +86,6 @@ export default function PublicProcessPage() {
               </div>
             )}
           </dl>
-          <p className="hint">Horários de Brasília.</p>
         </section>
 
         <section className="card">
