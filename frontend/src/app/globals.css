@@ -1,16 +1,26 @@
+/* Identidade visual baseada no portal da Prefeitura (paraibadosul.rj.gov.br). */
 :root {
-  --color-text: #1b1f24;
-  --color-muted: #59636e;
-  --color-border: #c9d1d9;
-  --color-background: #f6f8fa;
+  --color-navy: #012c61;
+  --color-navy-dark: #00224d;
+  --color-navy-light: #e6eef8;
+  --color-lime: #a6ce39;
+  --color-lime-dark: #4f6b0f;
+  --color-lime-light: #eef6dc;
+  --color-text: #1f2937;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
-  --color-primary: #0b5cad;
-  --color-primary-hover: #094a8b;
+  --color-surface-alt: #f8fafc;
+  --color-primary: var(--color-navy);
+  --color-primary-hover: #01376f;
   --color-error: #b42318;
   --color-error-background: #fef3f2;
-  --color-success: #067647;
-  --color-success-background: #ecfdf3;
-  --radius: 6px;
+  --color-success: #3f5a0b;
+  --color-success-background: var(--color-lime-light);
+  --radius: 8px;
+  --radius-card: 16px;
+  --content-width: 1100px;
 }
 
 *,
@@ -21,40 +31,250 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-header.site-header {
-  background: var(--color-primary);
+a {
+  color: var(--color-navy);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ---- Cabeçalho e rodapé ---- */
+
+.top-bar {
+  background: var(--color-navy);
   color: #fff;
-  padding: 12px 16px;
+  font-size: 0.8125rem;
 }
 
-header.site-header a {
+.top-bar .container {
+  display: flex;
+  gap: 20px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.top-bar a {
   color: #fff;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 
+.top-bar a:hover {
+  text-decoration: underline;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+  background: #fff;
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.site-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  flex-wrap: wrap;
+}
+
+.site-header .brand img {
+  height: 44px;
+  width: auto;
+}
+
+.site-header .system-name {
+  border-left: 1px solid var(--color-border);
+  padding-left: 16px;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.site-header .header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.site-footer {
+  margin-top: auto;
+  background: var(--color-navy-dark);
+  color: #fff;
+  font-size: 0.8125rem;
+}
+
+.site-footer .container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.site-footer .muted {
+  color: #c7d4e6;
+}
+
+.site-footer .copyright {
+  margin-left: auto;
+  align-self: flex-end;
+}
+
+.hero {
+  background: var(--color-navy);
+  color: #fff;
+}
+
+.hero .container {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.hero .eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9db7d9;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 6px 0 8px;
+}
+
+.hero p {
+  margin: 0;
+  color: #dbe6f3;
+}
+
+/* ---- Conteúdo ---- */
+
 main {
-  max-width: 720px;
+  width: 100%;
+  max-width: var(--content-width);
   margin: 24px auto;
   padding: 0 16px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 16px;
 }
 
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 24px;
+  border-radius: var(--radius-card);
+  padding: 20px;
+}
+
+main .card + .card {
+  margin-top: 16px;
 }
 
 h1 {
   font-size: 1.5rem;
+  font-weight: 800;
   margin-top: 0;
+}
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.process-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.process-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 16px 20px;
+}
+
+.process-card .process-title {
+  font-weight: 700;
+  color: var(--color-navy);
+  text-decoration: none;
+}
+
+.process-card .process-meta {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  margin: 4px 0 12px;
+}
+
+.process-panel {
+  margin-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.panel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.panel-row:last-child {
+  border-bottom: none;
+}
+
+.panel-row .grow {
+  flex: 1;
+  min-width: 160px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: var(--color-navy-light);
+  color: var(--color-navy);
+}
+
+.tag-open {
+  background: var(--color-lime-light);
+  color: var(--color-lime-dark);
 }
 
 fieldset {
@@ -81,11 +301,14 @@ legend {
 }
 
 .field input,
-.field select {
+.field select,
+textarea,
+select {
   font: inherit;
   padding: 8px 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
+  background: #fff;
 }
 
 .field input[aria-invalid="true"],
@@ -116,17 +339,23 @@ legend {
   margin: 4px 0;
 }
 
+/* ---- Botões ---- */
+
 button,
 .button {
   font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  border: none;
+  border: 1px solid var(--color-primary);
   border-radius: var(--radius);
-  padding: 10px 16px;
+  padding: 8px 14px;
   background: var(--color-primary);
   color: #fff;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 button:hover,
@@ -141,9 +370,32 @@ button:disabled {
 
 button.secondary,
 .button.secondary {
-  background: transparent;
+  background: #fff;
   color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+}
+
+button.secondary:hover,
+.button.secondary:hover {
+  background: var(--color-navy-light);
+}
+
+button.secondary[aria-expanded="true"] {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Ação principal do candidato, na cor verde da identidade visual. */
+button.action,
+.button.action {
+  background: var(--color-lime);
+  border-color: var(--color-lime);
+  color: var(--color-navy-dark);
+  font-weight: 600;
+}
+
+button.action:hover,
+.button.action:hover {
+  background: #95bb2f;
 }
 
 .alert {
@@ -180,16 +432,6 @@ button.secondary,
   margin-top: 16px;
 }
 
-.process-list {
-  list-style: none;
-  padding: 0;
-}
-
-.process-list li {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
 table {
   border-collapse: collapse;
   width: 100%;
@@ -203,13 +445,25 @@ td {
   border-bottom: 1px solid var(--color-border);
 }
 
-main .card + .card {
-  margin-top: 16px;
+@media (max-width: 600px) {
+  .site-header .system-name {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .site-header .header-actions {
+    margin-left: 0;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+  }
 }
 
-textarea {
-  font: inherit;
-  padding: 8px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+.site-footer a {
+  color: inherit;
+}
+
+.actions.compact {
+  margin-top: 0;
 }

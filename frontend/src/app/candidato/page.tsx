@@ -6,7 +6,7 @@ import { SessionGate } from "@/features/auth/SessionGate";
 import { ChangeEmailForm } from "@/features/candidate/ChangeEmailForm";
 import { type CandidateProfile, ProfileForm } from "@/features/candidate/ProfileForm";
 import { MyApplications } from "@/features/application/MyApplications";
-import { PublicProcessList } from "@/features/process/PublicProcessList";
+import { ProcessAccordion } from "@/features/process/ProcessAccordion";
 
 type Section = "candidaturas" | "processos" | "dados" | "email" | "senha";
 
@@ -50,7 +50,7 @@ export default function CandidateAreaPage() {
             <hr />
             {section === "candidaturas" && <MyApplications />}
             {section === "processos" && (
-              <PublicProcessList status="INSCRICOES_ABERTAS" emptyMessage="Nenhum processo com inscrições abertas no momento." />
+              <ProcessAccordion status="INSCRICOES_ABERTAS" emptyMessage="Nenhum processo com inscrições abertas no momento." />
             )}
             {section === "dados" && <ProfileForm key={profileVersion} onProfileLoaded={handleProfileLoaded} />}
             {section === "email" && <ChangeEmailForm onChanged={() => setProfileVersion((version) => version + 1)} />}

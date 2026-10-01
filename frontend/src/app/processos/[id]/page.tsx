@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { StartApplicationButton } from "@/features/application/StartApplicationButton";
+import { enrollHref } from "@/features/process/ProcessAccordion";
 import { PublicProcessDocuments } from "@/features/process/ProcessDocuments";
 import { ProcessInformation } from "@/features/process/ProcessInformation";
 import type { ProcessDetail } from "@/features/process/types";
@@ -36,7 +36,9 @@ export default function PublicProcessPage() {
               noticeBaseUrl={`/api/processes/${encodeURIComponent(process.id)}/notices`}
               positionAction={
                 process.status === "INSCRICOES_ABERTAS"
-                  ? (positionId) => <StartApplicationButton processId={process.id} positionId={positionId} />
+                  ? (positionId) => (
+                      <Link className="button action" href={enrollHref(process.id, positionId)}>Inscrever-se</Link>
+                    )
                   : undefined
               }
             />

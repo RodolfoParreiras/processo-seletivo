@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { ErrorAlert } from "@/components/FormAlert";
 import { ApiError, apiPost, type SessionInfo } from "@/lib/api";
-import { maskCpf, onlyDigits } from "@/lib/validation";
+import { maskCpf, onlyDigits, safeRedirectPath } from "@/lib/validation";
 
 interface LoginFormProps {
   title: string;
@@ -28,7 +28,7 @@ export function LoginForm({ title, endpoint, redirectTo, forgotPasswordHref, reg
     setSubmitting(true);
     try {
       await apiPost<SessionInfo>(endpoint, { cpf: onlyDigits(cpf), password });
-      router.replace(redirectTo);
+      router.replace(safeRedirectPath(new URLSearchParams(window.location.search).get("redirect"), redirectTo));
     } catch (caught) {
       setError(caught instanceof ApiError ? caught : new ApiError(0, "Não foi possível entrar. Tente novamente."));
       setPassword("");

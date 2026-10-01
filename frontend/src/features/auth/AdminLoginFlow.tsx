@@ -7,7 +7,7 @@ import { type FormEvent, useState } from "react";
 import { ErrorAlert } from "@/components/FormAlert";
 import { TextField } from "@/features/candidate/PersonalDataFields";
 import { ApiError, apiPost } from "@/lib/api";
-import { maskCpf, onlyDigits } from "@/lib/validation";
+import { maskCpf, onlyDigits, safeRedirectPath } from "@/lib/validation";
 
 type Step = "password" | "enroll" | "code";
 
@@ -66,7 +66,7 @@ export function AdminLoginFlow() {
     setSubmitting(true);
     try {
       await apiPost("/api/admin/auth/mfa/verify", { code: onlyDigits(code) });
-      router.replace("/admin");
+      router.replace(safeRedirectPath(new URLSearchParams(window.location.search).get("redirect"), "/admin"));
     } catch (caught) {
       setCode("");
       if (caught instanceof ApiError && caught.message.includes("expirada")) {

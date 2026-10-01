@@ -83,3 +83,14 @@ export const ADAPTATIONS = [
   { value: "ENLARGED_TEST", label: "Prova Ampliada" },
   { value: "NONE", label: "Nenhuma" },
 ] as const;
+
+/**
+ * Destino após o login, vindo da URL. Aceita somente caminhos internos, para que o parâmetro não
+ * possa redirecionar o usuário para outro site (open redirect).
+ */
+export function safeRedirectPath(value: string | null, fallback: string): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
+    return fallback;
+  }
+  return value;
+}

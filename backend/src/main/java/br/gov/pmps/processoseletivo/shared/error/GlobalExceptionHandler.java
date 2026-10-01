@@ -5,12 +5,14 @@ import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -80,6 +82,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({AccessDeniedException.class, AuthenticationException.class})
     void rethrowSecurityException(RuntimeException exception) {
         throw exception;
+    }
+
+    /** Corpo ilegível (JSON inválido, identificador malformado): mensagem em português, sem detalhes do parser. */
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException exception,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        return ResponseEntity.badRequest().body(ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, "Requisição inválida. Verifique os dados enviados."));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(
+            TypeMismatchException exception, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return ResponseEntity.badRequest().body(ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, "Parâmetro inválido na requisição."));
     }
 
     @ExceptionHandler(Exception.class)

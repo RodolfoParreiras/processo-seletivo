@@ -1,21 +1,19 @@
-import Link from "next/link";
-import { PublicProcessList } from "@/features/process/PublicProcessList";
+import { ProcessAccordion } from "@/features/process/ProcessAccordion";
 
 export default function HomePage() {
   return (
-    <main>
-      <div className="card">
-        <h1>Sistema de Gestão de Processos Seletivos</h1>
-        <p>Prefeitura Municipal de Paraíba do Sul</p>
-        <div className="actions">
-          <Link className="button" href="/entrar">Entrar</Link>
-          <Link href="/cadastro">Criar conta de candidato</Link>
+    <>
+      <section className="hero">
+        <div className="container">
+          <div className="eyebrow">Prefeitura Municipal de Paraíba do Sul</div>
+          <h1>Processos Seletivos</h1>
+          <p>Consulte editais, inscreva-se e acompanhe suas candidaturas.</p>
         </div>
-      </div>
-      <div className="card">
-        <h2>Processos seletivos</h2>
-        <PublicProcessList emptyMessage="Nenhum processo seletivo publicado." />
-      </div>
-    </main>
+      </section>
+      <main>
+        <h2 className="section-title">Processos seletivos</h2>
+        <ProcessAccordion emptyMessage="Nenhum processo seletivo publicado no momento." />
+      </main>
+    </>
   );
 }

@@ -10,6 +10,12 @@ interface SessionGateProps {
   children: (session: SessionInfo, logout: () => Promise<void>) => ReactNode;
 }
 
+/** Após o login, o usuário volta para a página que tentou acessar. */
+function loginWithReturn(loginHref: string): string {
+  const current = window.location.pathname + window.location.search;
+  return `${loginHref}?redirect=${encodeURIComponent(current)}`;
+}
+
 /**
  * Exibe a área somente com sessão do tipo esperado. É apenas conveniência de navegação:
  * cada endpoint da API faz a própria verificação de autenticação e autorização.
@@ -24,12 +30,12 @@ export function SessionGate({ accountType, loginHref, children }: SessionGatePro
         if (current.accountType === accountType) {
           setSession(current);
         } else {
-          router.replace(loginHref);
+          router.replace(loginWithReturn(loginHref));
         }
       })
       .catch((error: unknown) => {
         if (error instanceof ApiError && error.status === 401) {
-          router.replace(loginHref);
+          router.replace(loginWithReturn(loginHref));
         }
       });
   }, [accountType, loginHref, router]);
