@@ -55,8 +55,9 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 3MB
+      # Limite técnico geral (edital). Documentos de candidatos têm limite próprio de 2 MB, aplicado no upload.
+      max-file-size: 10MB
+      max-request-size: 11MB
 
 server:
   forward-headers-strategy: framework
@@ -91,6 +92,14 @@ app:
   # URL pública usada nos links enviados por e-mail.
   public-url: ${APP_PUBLIC_URL}
   mail-from: ${MAIL_FROM}
+  storage:
+    # Diretório privado, fora de qualquer pasta servida pela web.
+    path: ${STORAGE_PATH:/var/lib/processo-seletivo/storage}
+  files:
+    notice-max-size: 10MB
+  scheduling:
+    # Abertura/encerramento automático das inscrições pelas datas.
+    enabled: ${SCHEDULING_ENABLED:true}
   security:
     candidate-session-idle-timeout: 60m
     admin-session-idle-timeout: 30m

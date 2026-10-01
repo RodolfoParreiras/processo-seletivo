@@ -1,6 +1,10 @@
 package br.gov.pmps.processoseletivo;
 
 import br.gov.pmps.processoseletivo.support.RecordingEmailGateway;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -34,9 +38,19 @@ public abstract class PostgresIntegrationTest {
                     MountableFile.forHostPath("../infra/postgres/01-create-roles.sh"),
                     "/docker-entrypoint-initdb.d/01-create-roles.sh");
 
+    private static final Path STORAGE_DIRECTORY = createStorageDirectory();
+
     static {
         // Container compartilhado por todas as classes de teste da JVM; o Testcontainers o encerra ao final.
         POSTGRES.start();
+    }
+
+    private static Path createStorageDirectory() {
+        try {
+            return Files.createTempDirectory("processo-seletivo-storage-");
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     @DynamicPropertySource
@@ -50,5 +64,8 @@ public abstract class PostgresIntegrationTest {
         registry.add("MAIL_HOST", () -> "localhost");
         registry.add("MAIL_FROM", () -> "nao-responda@example.test");
         registry.add("APP_PUBLIC_URL", () -> "https://processos.example.test");
+        registry.add("STORAGE_PATH", () -> STORAGE_DIRECTORY.toString());
+        // Transições automáticas são testadas chamando o caso de uso diretamente.
+        registry.add("SCHEDULING_ENABLED", () -> "false");
     }
 }

@@ -45,6 +45,10 @@ public class Administrator {
         return id;
     }
 
+    public UUID getUserAccountId() {
+        return userAccountId;
+    }
+
     public String getFullName() {
         return fullName;
     }

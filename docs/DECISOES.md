@@ -81,3 +81,14 @@ Todos os campos do §7 são obrigatórios, exceto o complemento do endereço.
 - Após troca de e-mail, o endereço anterior recebe aviso. Após troca ou redefinição de senha, o titular recebe aviso por e-mail.
 - Troca de senha com sessão ativa encerra as demais sessões da conta e mantém a sessão atual.
 - A auditoria registra apenas os nomes dos campos alterados, nunca os valores.
+
+## Processos seletivos (fase 4)
+
+- Escopo por processo: não há vínculo entre administrador e processo. Todo administrador enxerga todos os processos; o que pode fazer é limitado pelas permissões (RBAC). A especificação (§79) prevê o vínculo apenas "quando necessário".
+- Cargo: somente nome e quantidade de vagas. Demais informações ficam no edital (PDF).
+- Período de inscrição após a publicação: permitido apenas prorrogar a data final, antes do encerramento, com motivo obrigatório e auditoria. Não é permitido antecipar o fim nem alterar o início.
+- Processo publicado não volta a rascunho. Correções são feitas por nova versão do edital (retificação), com motivo, mantendo o histórico das versões anteriores.
+- Após a publicação, dados do processo, cargos, vagas e documentos exigidos não são alterados pelo sistema; mudanças ocorrem por retificação do edital. **(Proposta da equipe de desenvolvimento, pendente de confirmação: retificações que alterem vagas ou cargos podem exigir edição desses dados.)**
+- Edital: somente PDF, até 10 MB (limite técnico definido pela equipe de desenvolvimento; ajustável em `app.files.notice-max-size`).
+- Abertura e encerramento automáticos das inscrições são verificados a cada minuto. Independentemente disso, uma inscrição só é aceita se a data atual estiver dentro do período.
+- Horários são armazenados em UTC e exibidos no horário de Brasília.

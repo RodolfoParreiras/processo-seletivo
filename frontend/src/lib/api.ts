@@ -70,17 +70,27 @@ export function apiPut<T = void>(path: string, body?: unknown): Promise<T> {
   return sendWithCsrf<T>("PUT", path, body);
 }
 
-async function sendWithCsrf<T>(method: "POST" | "PUT", path: string, body?: unknown): Promise<T> {
+export function apiDelete<T = void>(path: string): Promise<T> {
+  return sendWithCsrf<T>("DELETE", path);
+}
+
+/** Envio de arquivo (multipart). O navegador define o Content-Type com o boundary. */
+export function apiUpload<T = void>(path: string, form: FormData): Promise<T> {
+  return sendWithCsrf<T>("POST", path, form);
+}
+
+async function sendWithCsrf<T>(method: "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<T> {
+  const isForm = body instanceof FormData;
   const send = async () =>
     fetch(path, {
       method,
       credentials: "same-origin",
       headers: {
-        "Content-Type": "application/json",
+        ...(isForm ? {} : { "Content-Type": "application/json" }),
         Accept: "application/json",
         [CSRF_HEADER]: await csrfToken(),
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
     });
 
   let response = await send();

@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -36,6 +37,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 @AutoConfigureMockMvc
+// Primeira classe a rodar: o teste de provisionamento exige banco sem administradores (junit-platform.properties).
+@Order(1)
 class AuthenticationFlowTest extends PostgresIntegrationTest {
 
     private static final String SESSION_COOKIE = "SESSION";

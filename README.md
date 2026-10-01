@@ -42,6 +42,8 @@ O arquivo `.env` nunca deve ser versionado.
 | `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS` | Autenticação e STARTTLS no SMTP (em produção: `true`) |
 | `MAIL_FROM` | Remetente dos e-mails |
 | `BOOTSTRAP_ADMIN_*` | Provisionamento do primeiro Administrador Geral (ver abaixo) |
+| `STORAGE_PATH` | Diretório privado dos arquivos enviados (no compose: volume `app-storage`, que deve entrar no backup) |
+| `SCHEDULING_ENABLED` | Abertura/encerramento automático das inscrições (padrão `true`) |
 
 Os usuários do banco são criados somente na primeira inicialização do volume `postgres-data`.
 Para alterar essas senhas depois, altere-as também no PostgreSQL.
@@ -86,6 +88,16 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | PUT | `/api/auth/password` | Autenticado; exige a senha atual e encerra as demais sessões |
 | GET, PUT | `/api/candidate/me` | Candidato; dados do próprio titular da sessão |
 | PUT | `/api/candidate/me/email` | Candidato; exige a senha atual |
+
+| GET | `/api/processes`, `/api/processes/{id}` | Público; nunca mostra rascunhos |
+| GET | `/api/processes/{id}/notices/{versão}/file` | Público; somente versões publicadas do edital |
+| GET | `/api/admin/processes`, `/{id}`, `/{id}/history`, `/{id}/notices/{versão}/file` | `PROCESSO_VISUALIZAR` |
+| POST | `/api/admin/processes` | `PROCESSO_CRIAR` |
+| PUT, POST, DELETE | `/api/admin/processes/{id}`, `/positions`, `/document-requirements` | `PROCESSO_EDITAR` (somente rascunho) |
+| POST | `/api/admin/processes/{id}/notices` (multipart) | `PROCESSO_EDITAR`; após publicação exige `reason` (retificação) |
+| POST | `/api/admin/processes/{id}/extend-registration` | `PROCESSO_EDITAR` |
+| POST | `/api/admin/processes/{id}/publish` | `PROCESSO_PUBLICAR` |
+| POST | `/api/admin/processes/{id}/suspend`, `/resume`, `/cancel`, `/archive` | `PROCESSO_ENCERRAR`; exigem `reason` |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 

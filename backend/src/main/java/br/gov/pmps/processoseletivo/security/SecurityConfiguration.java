@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
@@ -22,6 +23,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     // A API só devolve JSON e arquivos; nada nela precisa carregar scripts, estilos ou ser embutido em frames.
@@ -51,6 +53,9 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/auth/password").authenticated()
                         .requestMatchers("/api/candidate/**").hasRole("CANDIDATE")
+                        .requestMatchers(HttpMethod.GET, "/api/processes", "/api/processes/**").permitAll()
+                        // Permissão específica de cada operação: @PreAuthorize nos controllers administrativos.
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 // Autenticação por sessão em cookie: CSRF com token em cookie lido pelo frontend e reenviado em header.

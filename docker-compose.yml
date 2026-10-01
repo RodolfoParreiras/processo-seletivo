@@ -43,6 +43,7 @@ services:
       BOOTSTRAP_ADMIN_CPF: ${BOOTSTRAP_ADMIN_CPF:-}
       BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      STORAGE_PATH: /var/lib/processo-seletivo/storage
       TZ: UTC
     depends_on:
       postgres:
@@ -53,6 +54,9 @@ services:
       timeout: 5s
       retries: 12
       start_period: 30s
+    volumes:
+      # Arquivos enviados (editais, documentos): volume privado, incluído no backup.
+      - app-storage:/var/lib/processo-seletivo/storage
     mem_limit: 768m
 
   frontend:
@@ -86,3 +90,4 @@ services:
 
 volumes:
   postgres-data:
+  app-storage:

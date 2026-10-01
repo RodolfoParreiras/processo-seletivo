@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -53,6 +54,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST, "Verifique os campos informados.");
         problem.setProperty("fieldErrors", fieldErrors);
         return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(DomainRuleException.class)
+    ProblemDetail handleDomainRule(DomainRuleException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    /** Duas alterações simultâneas no mesmo registro: a segunda é recusada em vez de sobrescrever a primeira. */
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    ProblemDetail handleOptimisticLock(ObjectOptimisticLockingFailureException exception) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, "O registro foi alterado por outra pessoa. Recarregue a página e tente novamente.");
     }
 
     /** Violação de constraint (ex.: duas requisições simultâneas com o mesmo dado único). */

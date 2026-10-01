@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PublicProcessList } from "@/features/process/PublicProcessList";
 
 export default function HomePage() {
   return (
@@ -10,6 +11,10 @@ export default function HomePage() {
           <Link className="button" href="/entrar">Entrar</Link>
           <Link href="/cadastro">Criar conta de candidato</Link>
         </div>
+      </div>
+      <div className="card">
+        <h2>Processos seletivos</h2>
+        <PublicProcessList emptyMessage="Nenhum processo seletivo publicado." />
       </div>
     </main>
   );

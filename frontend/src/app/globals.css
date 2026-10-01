@@ -178,3 +178,37 @@ button.secondary {
   align-items: center;
   margin-top: 16px;
 }
+
+.process-list {
+  list-style: none;
+  padding: 0;
+}
+
+.process-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+main .card + .card {
+  margin-top: 16px;
+}
+
+textarea {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}

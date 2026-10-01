@@ -7,7 +7,11 @@ COPY src ./src
 RUN mvn -B -q package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
-RUN addgroup -S app && adduser -S -G app app
+# Diretório de arquivos enviados: somente o usuário da aplicação lê e grava.
+RUN addgroup -S app && adduser -S -G app app \
+    && mkdir -p /var/lib/processo-seletivo/storage \
+    && chown app:app /var/lib/processo-seletivo/storage \
+    && chmod 700 /var/lib/processo-seletivo/storage
 WORKDIR /app
 COPY --from=build /build/target/processo-seletivo-*.jar app.jar
 USER app
