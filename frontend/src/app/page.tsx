@@ -1,13 +1,13 @@
-import { Hero } from "@/components/Hero";
-import { ProcessAccordion } from "@/features/process/ProcessAccordion";
+import { HomeHero } from "@/components/HomeHero";
+import { ProcessBrowser } from "@/features/process/ProcessBrowser";
 
 export default function HomePage() {
   return (
     <>
-      <Hero title="Processos Seletivos" subtitle="Consulte editais, inscreva-se e acompanhe suas candidaturas." />
+      <HomeHero />
       <main>
         <h2 className="section-title">Processos seletivos</h2>
-        <ProcessAccordion emptyMessage="Nenhum processo seletivo publicado no momento." />
+        <ProcessBrowser />
       </main>
     </>
   );

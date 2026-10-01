@@ -1,0 +1,43 @@
+"use client";
+
+import { useState } from "react";
+import { ProcessAccordion } from "./ProcessAccordion";
+import { type ProcessStatus, STATUS_LABELS } from "./types";
+
+const FILTERS: (ProcessStatus | null)[] = [
+  null,
+  "INSCRICOES_ABERTAS",
+  "PUBLICADO",
+  "INSCRICOES_ENCERRADAS",
+  "SUSPENSO",
+  "CANCELADO",
+  "ARQUIVADO",
+];
+
+/** Lista pública de processos com filtro por situação. */
+export function ProcessBrowser() {
+  const [status, setStatus] = useState<ProcessStatus | null>(null);
+
+  return (
+    <>
+      <div className="filter-bar" role="group" aria-label="Filtrar por situação">
+        {FILTERS.map((filter) => (
+          <button
+            key={filter ?? "todos"}
+            type="button"
+            className="filter-chip"
+            aria-pressed={status === filter}
+            onClick={() => setStatus(filter)}
+          >
+            {filter ? STATUS_LABELS[filter] : "Todos"}
+          </button>
+        ))}
+      </div>
+      <ProcessAccordion
+        key={status ?? "todos"}
+        status={status ?? undefined}
+        emptyMessage={status ? "Nenhum processo nesta situação." : "Nenhum processo seletivo publicado no momento."}
+      />
+    </>
+  );
+}

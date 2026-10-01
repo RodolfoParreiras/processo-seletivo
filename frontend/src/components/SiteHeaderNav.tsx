@@ -8,22 +8,10 @@ import { apiGet, apiPost, type SessionInfo } from "@/lib/api";
 /** Evento disparado por "Meus Dados" quando o nome muda, para atualizar o cabeçalho sem novo login. */
 export const NAME_CHANGED_EVENT = "candidate-name-changed";
 
-const CANDIDATE_LINKS = [
-  { href: "/candidato", label: "Processos Abertos" },
-  { href: "/candidato/candidaturas", label: "Minhas Candidaturas" },
-];
-
 /** Nome curto para o botão do menu: primeiro e último nome. */
 function shortName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
   return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1]}` : parts[0];
-}
-
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/candidato/candidaturas") {
-    return pathname.startsWith(href) || pathname.startsWith("/candidato/inscricoes");
-  }
-  return pathname === href;
 }
 
 function UserMenu({ name, onLogout }: { name: string; onLogout: () => void }) {
@@ -65,6 +53,11 @@ function UserMenu({ name, onLogout }: { name: string; onLogout: () => void }) {
       {open && (
         <ul id="user-menu-options" className="user-menu-options">
           <li>
+            <Link href="/candidato/candidaturas">
+              <i className="ti ti-list-check" aria-hidden="true" /> Minhas Candidaturas
+            </Link>
+          </li>
+          <li>
             <Link href="/candidato/dados">
               <i className="ti ti-id-badge-2" aria-hidden="true" /> Meus Dados
             </Link>
@@ -80,10 +73,7 @@ function UserMenu({ name, onLogout }: { name: string; onLogout: () => void }) {
   );
 }
 
-/**
- * Menu do cabeçalho: com sessão de candidato, mostra a navegação da área logada e o menu do usuário;
- * sem ela, o botão "Área do Candidato".
- */
+/** Menu do cabeçalho: com sessão de candidato, o menu do usuário; sem ela, o botão "Área do Candidato". */
 export function SiteHeaderNav() {
   const pathname = usePathname();
   const router = useRouter();
@@ -123,17 +113,8 @@ export function SiteHeaderNav() {
   }
 
   return (
-    <>
-      <nav className="main-nav" aria-label="Área do candidato">
-        {CANDIDATE_LINKS.map((link) => (
-          <Link key={link.href} href={link.href} aria-current={isActive(pathname, link.href) ? "page" : undefined}>
-            {link.label}
-          </Link>
-        ))}
-      </nav>
-      <div className="header-actions">
-        <UserMenu name={session.displayName} onLogout={logout} />
-      </div>
-    </>
+    <div className="header-actions">
+      <UserMenu name={session.displayName} onLogout={logout} />
+    </div>
   );
 }

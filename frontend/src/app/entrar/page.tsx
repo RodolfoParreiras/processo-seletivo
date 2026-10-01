@@ -6,7 +6,7 @@ export default function CandidateLoginPage() {
       title="Área do Candidato"
       subtitle="Acesse para se inscrever e acompanhar suas inscrições."
       endpoint="/api/auth/login"
-      redirectTo="/candidato"
+      redirectTo="/"
       forgotPasswordHref="/esqueci-senha"
       registerHref="/cadastro"
     />
