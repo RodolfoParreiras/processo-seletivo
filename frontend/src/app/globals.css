@@ -70,10 +70,13 @@ a {
   color: #fff;
   text-decoration: none;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.top-bar a:hover {
-  text-decoration: underline;
+.top-bar .ti {
+  font-size: 1rem;
 }
 
 .site-header {
@@ -101,13 +104,6 @@ a {
 .site-header .brand img {
   height: 44px;
   width: auto;
-}
-
-.site-header .system-name {
-  border-left: 1px solid var(--color-border);
-  padding-left: 16px;
-  font-weight: 700;
-  color: var(--color-navy);
 }
 
 .site-header .header-actions {
@@ -490,12 +486,7 @@ td {
 }
 
 @media (max-width: 600px) {
-  .site-header .system-name {
-    border-left: none;
-    padding-left: 0;
-  }
-
-  .site-header .header-actions {
+    .site-header .header-actions {
     margin-left: 0;
   }
 

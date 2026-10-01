@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
+import "@tabler/icons-webfont/dist/tabler-icons.min.css";
 import "./globals.css";
 
 // A fonte é baixada no build e servida pela própria aplicação (sem requisição a terceiros em tempo de uso).
@@ -24,8 +25,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <div className="top-bar">
           <div className="container">
-            <a href={PORTAL_URL} rel="noopener noreferrer">Portal da Prefeitura</a>
-            <Link href="/verificar-comprovante">Validar documentos</Link>
+            <a href={PORTAL_URL} rel="noopener noreferrer">
+              <i className="ti ti-building-community" aria-hidden="true" /> Portal da Prefeitura
+            </a>
+            <Link href="/verificar-comprovante">
+              <i className="ti ti-file-check" aria-hidden="true" /> Validar documentos
+            </Link>
           </div>
         </div>
         <header className="site-header">
@@ -33,7 +38,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <Link href="/" className="brand">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-prefeitura.png" alt="Prefeitura Municipal de Paraíba do Sul" width={220} height={44} />
-              <span className="system-name">Processos Seletivos</span>
             </Link>
             <nav className="header-actions" aria-label="Acesso do candidato">
               <Link href="/cadastro" className="button secondary">Criar conta</Link>
