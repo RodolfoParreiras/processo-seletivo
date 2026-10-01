@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatDateTime } from "@/features/process/types";
 import { apiGet } from "@/lib/api";
 import { APPLICATION_STATUS_LABELS, type ApplicationSummary } from "./types";
 
@@ -22,32 +21,38 @@ export function MyApplications() {
   if (applications.length === 0) return <p>Você ainda não possui inscrições.</p>;
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Processo</th>
-          <th scope="col">Cargo</th>
-          <th scope="col">Inscrição</th>
-          <th scope="col">Situação</th>
-        </tr>
-      </thead>
-      <tbody>
-        {applications.map((application) => (
-          <tr key={application.id}>
-            <td>
-              {application.processNumber} — {application.processTitle}
-            </td>
-            <td>{application.positionName}</td>
-            <td>
-              <Link href={`/candidato/inscricoes/${application.id}`}>
-                {application.applicationNumber ?? "Continuar inscrição"}
-              </Link>
-              {application.confirmedAt && <div className="hint">{formatDateTime(application.confirmedAt)}</div>}
-            </td>
-            <td>{APPLICATION_STATUS_LABELS[application.status]}</td>
+    <div className="table-scroll">
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Processo</th>
+            <th scope="col">Cargo</th>
+            <th scope="col">Situação</th>
+            <th scope="col"><span className="sr-only">Ações</span></th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {applications.map((application) => (
+            <tr key={application.id}>
+              <td>
+                <strong className="cell-title">{application.processNumber}</strong>
+                <div className="hint">{application.processTitle}</div>
+              </td>
+              <td>{application.positionName}</td>
+              <td>{APPLICATION_STATUS_LABELS[application.status]}</td>
+              <td className="cell-action">
+                <Link
+                  className="button secondary"
+                  href={`/candidato/inscricoes/${application.id}`}
+                  aria-label={`Detalhar inscrição em ${application.positionName}, processo ${application.processNumber}`}
+                >
+                  Detalhar
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

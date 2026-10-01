@@ -11,7 +11,7 @@ export default function MyApplicationsPage() {
         <>
           <Hero title="Minhas Candidaturas" subtitle="Acompanhe suas inscrições e baixe os comprovantes." />
           <main>
-            <div className="card">
+            <div className="card table-card">
               <MyApplications />
             </div>
           </main>
