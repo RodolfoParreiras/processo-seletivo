@@ -9,16 +9,18 @@ import { maskCpf, onlyDigits, safeRedirectPath } from "@/lib/validation";
 
 interface LoginFormProps {
   title: string;
+  subtitle?: string;
   endpoint: string;
   redirectTo: string;
   forgotPasswordHref: string;
   registerHref?: string;
 }
 
-export function LoginForm({ title, endpoint, redirectTo, forgotPasswordHref, registerHref }: LoginFormProps) {
+export function LoginForm({ title, subtitle, endpoint, redirectTo, forgotPasswordHref, registerHref }: LoginFormProps) {
   const router = useRouter();
   const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -38,43 +40,68 @@ export function LoginForm({ title, endpoint, redirectTo, forgotPasswordHref, reg
   }
 
   return (
-    <main>
-      <div className="card">
-        <h1>{title}</h1>
+    <main className="auth-page">
+      <div className="card auth-card">
+        <div className="auth-header">
+          <span className="auth-icon"><i className="ti ti-user" aria-hidden="true" /></span>
+          <h1>{title}</h1>
+          {subtitle && <p className="hint">{subtitle}</p>}
+        </div>
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit} noValidate>
           <div className="field">
             <label htmlFor="cpf">CPF</label>
-            <input
-              id="cpf"
-              name="cpf"
-              inputMode="numeric"
-              autoComplete="username"
-              required
-              value={cpf}
-              onChange={(event) => setCpf(maskCpf(event.target.value))}
-            />
+            <div className="input-icon">
+              <i className="ti ti-id" aria-hidden="true" />
+              <input
+                id="cpf"
+                name="cpf"
+                inputMode="numeric"
+                autoComplete="username"
+                placeholder="000.000.000-00"
+                required
+                value={cpf}
+                onChange={(event) => setCpf(maskCpf(event.target.value))}
+              />
+            </div>
           </div>
           <div className="field">
-            <label htmlFor="password">Senha</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
+            <div className="label-row">
+              <label htmlFor="password">Senha</label>
+              <Link href={forgotPasswordHref}>Esqueci minha senha</Link>
+            </div>
+            <div className="input-icon">
+              <i className="ti ti-lock" aria-hidden="true" />
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+              <button
+                type="button"
+                className="input-toggle"
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                <i className={showPassword ? "ti ti-eye-off" : "ti ti-eye"} aria-hidden="true" />
+              </button>
+            </div>
           </div>
-          <div className="actions">
-            <button type="submit" disabled={submitting || !cpf || !password}>
-              {submitting ? "Entrando..." : "Entrar"}
-            </button>
-            <Link href={forgotPasswordHref}>Esqueci minha senha</Link>
-            {registerHref && <Link href={registerHref}>Criar conta</Link>}
-          </div>
+          <button type="submit" className="block" disabled={submitting || !cpf || !password}>
+            {submitting ? "Entrando..." : "Entrar"}
+          </button>
         </form>
+        {registerHref && (
+          <div className="auth-register">
+            <p className="hint">Ainda não tem cadastro?</p>
+            <Link href={registerHref} className="button block">Criar conta</Link>
+          </div>
+        )}
       </div>
     </main>
   );
