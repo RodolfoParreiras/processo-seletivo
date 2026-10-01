@@ -3,7 +3,15 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { ErrorAlert } from "@/components/FormAlert";
 import { TextField } from "@/features/candidate/PersonalDataFields";
-import { formatDateTime, localInputToIso, type ProcessDetail, STATUS_LABELS, type ProcessStatus } from "@/features/process/types";
+import {
+  formatDateTime,
+  localInputToIso,
+  type ProcessDetail,
+  type ProcessStage,
+  type ProcessStatus,
+  STAGE_LABELS,
+  STATUS_LABELS,
+} from "@/features/process/types";
 import { ApiError, apiDelete, apiGet, apiPost, apiUpload } from "@/lib/api";
 
 interface EditorProps {
@@ -324,6 +332,84 @@ export function StatusHistory({ processId, version }: { processId: string; versi
           ))}
         </tbody>
       </table>
+    </section>
+  );
+}
+
+/** Etapa de divulgação escolhida manualmente pelo administrador (lista fixa). */
+export function StageSelector({ process, onChanged }: EditorProps) {
+  const [stage, setStage] = useState<ProcessStage>(process.stage ?? "EDITAL_DISPONIVEL");
+  const [error, setError] = useState<ApiError | null>(null);
+
+  async function save() {
+    setError(null);
+    try {
+      await apiPost(`/api/admin/processes/${process.id}/stage`, { stage });
+      onChanged();
+    } catch (caught) {
+      setError(toApiError(caught, "Não foi possível alterar a etapa."));
+    }
+  }
+
+  return (
+    <section>
+      <h2>Etapa</h2>
+      <p className="hint">
+        Etapa atual: <strong>{process.stage ? STAGE_LABELS[process.stage] : "—"}</strong>. A situação das inscrições
+        (abertas/encerradas) continua automática pelas datas.
+      </p>
+      <ErrorAlert error={error} />
+      <div className="actions">
+        <select aria-label="Nova etapa" value={stage} onChange={(event) => setStage(event.target.value as ProcessStage)}>
+          {(Object.keys(STAGE_LABELS) as ProcessStage[]).map((value) => (
+            <option key={value} value={value}>{STAGE_LABELS[value]}</option>
+          ))}
+        </select>
+        <button type="button" disabled={stage === process.stage} onClick={save}>Alterar etapa</button>
+      </div>
+    </section>
+  );
+}
+
+interface StageEntry {
+  fromStage: ProcessStage | null;
+  toStage: ProcessStage;
+  changedBy: string | null;
+  changedAt: string;
+}
+
+export function StageHistory({ processId, version }: { processId: string; version: number }) {
+  const [entries, setEntries] = useState<StageEntry[]>([]);
+
+  useEffect(() => {
+    apiGet<StageEntry[]>(`/api/admin/processes/${processId}/stage-history`).then(setEntries).catch(() => setEntries([]));
+  }, [processId, version]);
+
+  return (
+    <section>
+      <h2>Histórico de etapas</h2>
+      {entries.length === 0 ? (
+        <p className="hint">Nenhuma etapa registrada.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Data</th>
+              <th scope="col">Etapa</th>
+              <th scope="col">Responsável</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((entry, index) => (
+              <tr key={index}>
+                <td>{formatDateTime(entry.changedAt)}</td>
+                <td>{STAGE_LABELS[entry.toStage]}</td>
+                <td>{entry.changedBy ?? "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }

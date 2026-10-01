@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import { formatDateTime, type Page, type ProcessStatus, type ProcessSummary, STATUS_LABELS } from "./types";
+import { formatDateTime, type Page, type ProcessStatus, type ProcessSummary, STAGE_LABELS, STATUS_LABELS } from "./types";
 
 interface PublicProcessListProps {
   status?: ProcessStatus;
@@ -38,6 +38,7 @@ export function PublicProcessList({ status, emptyMessage }: PublicProcessListPro
           </Link>
           <br />
           <span className="hint">
+            {process.stage ? `${STAGE_LABELS[process.stage]} · ` : ""}
             {STATUS_LABELS[process.status]} · {process.department} · Inscrições de{" "}
             {formatDateTime(process.registrationStart)} a {formatDateTime(process.registrationEnd)}
           </span>

@@ -115,7 +115,7 @@ Decisão da Prefeitura, que altera o escopo da especificação (§29, §30 e §5
 
 Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
 
-- Decisões são permitidas quando o processo está com inscrições encerradas ou com resultado preliminar. Ficam bloqueadas com resultado definitivo, arquivado, cancelado ou suspenso.
+- Decisões são permitidas com inscrições encerradas e antes da etapa Resultado Final. Ficam bloqueadas na etapa Resultado Final e com o processo arquivado, cancelado ou suspenso.
 - Deferir exige a permissão `INSCRICAO_DEFERIR`; indeferir exige `INSCRICAO_INDEFERIR`; consultar exige `INSCRICAO_VISUALIZAR`.
 - Dados de pessoa com deficiência e necessidade de adaptações só aparecem para quem tem a permissão `DADOS_PCD_VISUALIZAR` (especificação §9 e §66). O Administrador Geral recebe essa permissão.
 - O download de documento de candidato por administrador é registrado na auditoria (especificação §36).
@@ -130,3 +130,11 @@ Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
 - Os documentos são públicos na página do processo, exceto enquanto o processo é rascunho.
 - Documento publicado não é apagado: pode ser retirado da página pública com justificativa; o registro e o arquivo continuam disponíveis para a área administrativa e a retirada é auditada (AI_RULES §22 e §69).
 - Permissão: `RESULTADO_PUBLICAR`.
+
+## Etapa do processo
+
+- Cada processo publicado tem uma **etapa**, definida manualmente pelo administrador a partir de lista fixa: Edital Disponível, Gabarito Disponível, Resultado Preliminar e Resultado Final. Novas opções exigem ajuste no sistema.
+- A etapa é independente da situação das inscrições, que continua automática pelas datas (Publicado, Inscrições abertas, Inscrições encerradas), além de Suspenso, Cancelado e Arquivado.
+- As situações internas "Resultado preliminar" e "Resultado definitivo" foram substituídas pela etapa (V012).
+- Ao publicar, a etapa inicial é Edital Disponível. O administrador pode escolher qualquer etapa da lista; toda mudança fica em histórico e na auditoria. Permissão: `RESULTADO_PUBLICAR`.
+- Arquivar exige inscrições encerradas e etapa Resultado Final.

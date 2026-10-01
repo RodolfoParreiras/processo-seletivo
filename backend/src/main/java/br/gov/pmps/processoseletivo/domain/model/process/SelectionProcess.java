@@ -64,6 +64,11 @@ public class SelectionProcess {
     @Column(name = "status_before_suspension")
     private ProcessStatus statusBeforeSuspension;
 
+    // Etapa de divulgação definida pelo administrador; nula enquanto rascunho.
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ProcessStage stage;
+
     @Column(name = "registration_start", nullable = false)
     private Instant registrationStart;
 
@@ -172,6 +177,7 @@ public class SelectionProcess {
             throw new DomainRuleException("O fim do período de inscrição já passou. Ajuste as datas antes de publicar.");
         }
         publishedAt = now;
+        stage = ProcessStage.EDITAL_DISPONIVEL;
         return changeStatus(ProcessStatus.PUBLICADO, now);
     }
 
@@ -187,6 +193,24 @@ public class SelectionProcess {
             return Optional.of(changeStatus(ProcessStatus.INSCRICOES_ENCERRADAS, now));
         }
         return Optional.empty();
+    }
+
+    /**
+     * Etapa de divulgação escolhida manualmente pelo administrador (docs/DECISOES.md).
+     *
+     * @return etapa anterior
+     */
+    public ProcessStage changeStage(ProcessStage newStage, Instant now) {
+        if (status == ProcessStatus.RASCUNHO || status == ProcessStatus.SUSPENSO || status.isTerminal()) {
+            throw new DomainRuleException("A etapa só pode ser alterada em processos publicados, não suspensos e não finalizados.");
+        }
+        if (newStage == stage) {
+            throw new DomainRuleException("O processo já está nesta etapa.");
+        }
+        ProcessStage previous = stage;
+        stage = newStage;
+        updatedAt = now;
+        return previous;
     }
 
     /** Somente prorrogação do fim, antes do encerramento (docs/DECISOES.md). */
@@ -230,8 +254,8 @@ public class SelectionProcess {
     }
 
     public StatusChange archive(Instant now) {
-        if (status != ProcessStatus.RESULTADO_DEFINITIVO) {
-            throw new DomainRuleException("Somente processos com resultado definitivo podem ser arquivados.");
+        if (status != ProcessStatus.INSCRICOES_ENCERRADAS || stage != ProcessStage.RESULTADO_FINAL) {
+            throw new DomainRuleException("Somente processos na etapa Resultado Final podem ser arquivados.");
         }
         return changeStatus(ProcessStatus.ARQUIVADO, now);
     }
@@ -264,17 +288,17 @@ public class SelectionProcess {
     }
 
     /**
-     * Deferimento/indeferimento após o encerramento das inscrições e até o resultado definitivo
-     * (inclui revisões por recurso após o resultado preliminar; docs/DECISOES.md).
+     * Deferimento/indeferimento após o encerramento das inscrições e antes da etapa Resultado Final
+     * (inclui revisões por recurso; docs/DECISOES.md).
      */
     public boolean allowsApplicationDecisions() {
-        return status == ProcessStatus.INSCRICOES_ENCERRADAS || status == ProcessStatus.RESULTADO_PRELIMINAR;
+        return status == ProcessStatus.INSCRICOES_ENCERRADAS && stage != ProcessStage.RESULTADO_FINAL;
     }
 
     public void requireApplicationDecisionsAllowed() {
         if (!allowsApplicationDecisions()) {
             throw new DomainRuleException(
-                    "Deferimento e indeferimento só são permitidos com inscrições encerradas ou resultado preliminar.");
+                    "Deferimento e indeferimento só são permitidos com inscrições encerradas e antes do Resultado Final.");
         }
     }
 
@@ -375,6 +399,10 @@ public class SelectionProcess {
 
     public ProcessStatus getStatus() {
         return status;
+    }
+
+    public ProcessStage getStage() {
+        return stage;
     }
 
     public Instant getRegistrationStart() {

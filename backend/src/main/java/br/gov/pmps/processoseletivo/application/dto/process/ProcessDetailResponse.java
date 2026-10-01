@@ -3,6 +3,7 @@ package br.gov.pmps.processoseletivo.application.dto.process;
 import br.gov.pmps.processoseletivo.domain.model.process.DocumentRequirement;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessNotice;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessPosition;
+import br.gov.pmps.processoseletivo.domain.model.process.ProcessStage;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus;
 import br.gov.pmps.processoseletivo.domain.model.process.SelectionProcess;
 import java.time.Instant;
@@ -17,6 +18,7 @@ public record ProcessDetailResponse(
         String title,
         String department,
         ProcessStatus status,
+        ProcessStage stage,
         Instant registrationStart,
         Instant registrationEnd,
         boolean multipleApplicationsAllowed,
@@ -38,7 +40,7 @@ public record ProcessDetailResponse(
     public static ProcessDetailResponse from(SelectionProcess process, List<ProcessNotice> notices) {
         return new ProcessDetailResponse(
                 process.getId(), process.getNumber(), process.getYear(), process.getDisplayNumber(), process.getTitle(),
-                process.getDepartment(), process.getStatus(), process.getRegistrationStart(),
+                process.getDepartment(), process.getStatus(), process.getStage(), process.getRegistrationStart(),
                 process.getRegistrationEnd(), process.isMultipleApplicationsAllowed(),
                 process.isTitleEvaluationEnabled(), process.getPublishedAt(),
                 process.getPositions().stream().map(ProcessDetailResponse::toPosition).toList(),

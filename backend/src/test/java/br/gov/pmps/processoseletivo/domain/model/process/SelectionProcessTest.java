@@ -125,6 +125,39 @@ class SelectionProcessTest {
         assertThatThrownBy(() -> published().archive(NOW)).isInstanceOf(DomainRuleException.class);
     }
 
+    @Test
+    void publicationStartsAtNoticeStageAndStageIsChosenManually() {
+        SelectionProcess process = published();
+        assertThat(process.getStage()).isEqualTo(ProcessStage.EDITAL_DISPONIVEL);
+
+        assertThat(process.changeStage(ProcessStage.RESULTADO_PRELIMINAR, NOW)).isEqualTo(ProcessStage.EDITAL_DISPONIVEL);
+        assertThat(process.changeStage(ProcessStage.GABARITO_DISPONIVEL, NOW)).isEqualTo(ProcessStage.RESULTADO_PRELIMINAR);
+        assertThatThrownBy(() -> process.changeStage(ProcessStage.GABARITO_DISPONIVEL, NOW))
+                .isInstanceOf(DomainRuleException.class);
+    }
+
+    @Test
+    void draftHasNoStage() {
+        assertThat(draft().getStage()).isNull();
+        assertThatThrownBy(() -> draft().changeStage(ProcessStage.RESULTADO_FINAL, NOW))
+                .isInstanceOf(DomainRuleException.class);
+    }
+
+    @Test
+    void finalResultBlocksDecisionsAndAllowsArchivingAfterClosing() {
+        SelectionProcess process = published();
+        process.advanceBySchedule(START);
+        process.advanceBySchedule(END);
+        assertThat(process.allowsApplicationDecisions()).isTrue();
+
+        process.changeStage(ProcessStage.RESULTADO_FINAL, NOW);
+
+        assertThat(process.allowsApplicationDecisions()).isFalse();
+        assertThat(process.archive(NOW).to()).isEqualTo(ProcessStatus.ARQUIVADO);
+        assertThatThrownBy(() -> process.changeStage(ProcessStage.RESULTADO_PRELIMINAR, NOW))
+                .isInstanceOf(DomainRuleException.class);
+    }
+
     private static SelectionProcess draft() {
         return new SelectionProcess(details(START, END), NOW);
     }

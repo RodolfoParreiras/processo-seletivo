@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { formatDateTime, type ProcessDetail, STATUS_LABELS } from "./types";
+import { formatDateTime, type ProcessDetail, STAGE_LABELS, STATUS_LABELS } from "./types";
 
 interface ProcessInformationProps {
   process: ProcessDetail;
@@ -14,11 +14,17 @@ export function ProcessInformation({ process, noticeBaseUrl, positionAction }: P
   return (
     <>
       <p>
-        <strong>Situação:</strong> {STATUS_LABELS[process.status]}
+        {process.stage && (
+          <>
+            <strong>Etapa:</strong> {STAGE_LABELS[process.stage]}
+            <br />
+          </>
+        )}
+        <strong>Inscrições:</strong> {STATUS_LABELS[process.status]}
         <br />
         <strong>Secretaria:</strong> {process.department}
         <br />
-        <strong>Inscrições:</strong> {formatDateTime(process.registrationStart)} a{" "}
+        <strong>Período de inscrição:</strong> {formatDateTime(process.registrationStart)} a{" "}
         {formatDateTime(process.registrationEnd)} (horário de Brasília)
         <br />
         <strong>Inscrição:</strong>{" "}

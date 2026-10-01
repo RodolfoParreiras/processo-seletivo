@@ -3,17 +3,20 @@ package br.gov.pmps.processoseletivo.application.usecase.process;
 import br.gov.pmps.processoseletivo.application.dto.PageResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessDetailResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessSummaryResponse;
+import br.gov.pmps.processoseletivo.application.dto.process.StageHistoryResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.StatusHistoryResponse;
 import br.gov.pmps.processoseletivo.application.file.FileDownload;
 import br.gov.pmps.processoseletivo.application.file.FileUploadService;
 import br.gov.pmps.processoseletivo.domain.model.Administrator;
 import br.gov.pmps.processoseletivo.domain.model.StoredFile;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessNotice;
+import br.gov.pmps.processoseletivo.domain.model.process.ProcessStageHistory;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessStatusHistory;
 import br.gov.pmps.processoseletivo.domain.model.process.SelectionProcess;
 import br.gov.pmps.processoseletivo.domain.repository.AdministratorRepository;
 import br.gov.pmps.processoseletivo.domain.repository.ProcessNoticeRepository;
+import br.gov.pmps.processoseletivo.domain.repository.ProcessStageHistoryRepository;
 import br.gov.pmps.processoseletivo.domain.repository.ProcessStatusHistoryRepository;
 import br.gov.pmps.processoseletivo.domain.repository.SelectionProcessRepository;
 import br.gov.pmps.processoseletivo.domain.repository.StoredFileRepository;
@@ -52,6 +55,7 @@ public class ProcessQueryUseCase {
     private final SelectionProcessRepository processRepository;
     private final ProcessNoticeRepository noticeRepository;
     private final ProcessStatusHistoryRepository historyRepository;
+    private final ProcessStageHistoryRepository stageHistoryRepository;
     private final AdministratorRepository administratorRepository;
     private final StoredFileRepository storedFileRepository;
     private final FileUploadService fileUploadService;
@@ -60,12 +64,14 @@ public class ProcessQueryUseCase {
             SelectionProcessRepository processRepository,
             ProcessNoticeRepository noticeRepository,
             ProcessStatusHistoryRepository historyRepository,
+            ProcessStageHistoryRepository stageHistoryRepository,
             AdministratorRepository administratorRepository,
             StoredFileRepository storedFileRepository,
             FileUploadService fileUploadService) {
         this.processRepository = processRepository;
         this.noticeRepository = noticeRepository;
         this.historyRepository = historyRepository;
+        this.stageHistoryRepository = stageHistoryRepository;
         this.administratorRepository = administratorRepository;
         this.storedFileRepository = storedFileRepository;
         this.fileUploadService = fileUploadService;
@@ -139,6 +145,21 @@ public class ProcessQueryUseCase {
                         entry.getFromStatus(), entry.getToStatus(), entry.getReason(),
                         entry.getChangedByAccountId() == null ? null : names.get(entry.getChangedByAccountId()),
                         entry.getChangedAt()))
+                .toList();
+    }
+
+    public List<StageHistoryResponse> stageHistory(UUID processId) {
+        if (!processRepository.existsById(processId)) {
+            throw ProcessSupport.notFound();
+        }
+        List<ProcessStageHistory> entries = stageHistoryRepository.findByProcessIdOrderByChangedAtAscIdAsc(processId);
+        Map<UUID, String> names = administratorRepository.findByUserAccountIdIn(
+                        entries.stream().map(ProcessStageHistory::getChangedByAccountId).collect(Collectors.toSet()))
+                .stream()
+                .collect(Collectors.toMap(Administrator::getUserAccountId, Administrator::getFullName));
+        return entries.stream()
+                .map(entry -> new StageHistoryResponse(entry.getFromStage(), entry.getToStage(),
+                        names.get(entry.getChangedByAccountId()), entry.getChangedAt()))
                 .toList();
     }
 

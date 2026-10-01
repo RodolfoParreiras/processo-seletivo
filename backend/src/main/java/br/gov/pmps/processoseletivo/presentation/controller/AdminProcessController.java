@@ -1,6 +1,7 @@
 package br.gov.pmps.processoseletivo.presentation.controller;
 
 import br.gov.pmps.processoseletivo.application.dto.PageResponse;
+import br.gov.pmps.processoseletivo.application.dto.process.ChangeStageRequest;
 import br.gov.pmps.processoseletivo.application.dto.process.DocumentRequirementRequest;
 import br.gov.pmps.processoseletivo.application.dto.process.ExtendRegistrationRequest;
 import br.gov.pmps.processoseletivo.application.dto.process.PositionRequest;
@@ -8,6 +9,7 @@ import br.gov.pmps.processoseletivo.application.dto.process.ProcessDetailRespons
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessDetailsRequest;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessSummaryResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ReasonRequest;
+import br.gov.pmps.processoseletivo.application.dto.process.StageHistoryResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.StatusHistoryResponse;
 import br.gov.pmps.processoseletivo.application.usecase.process.ManageDraftProcessUseCase;
 import br.gov.pmps.processoseletivo.application.usecase.process.ProcessLifecycleUseCase;
@@ -86,6 +88,12 @@ public class AdminProcessController {
     @PreAuthorize("hasAuthority('PROCESSO_VISUALIZAR')")
     List<StatusHistoryResponse> history(@PathVariable UUID processId) {
         return query.history(processId);
+    }
+
+    @GetMapping("/{processId}/stage-history")
+    @PreAuthorize("hasAuthority('PROCESSO_VISUALIZAR')")
+    List<StageHistoryResponse> stageHistory(@PathVariable UUID processId) {
+        return query.stageHistory(processId);
     }
 
     @GetMapping("/{processId}/notices/{version}/file")
@@ -210,6 +218,18 @@ public class AdminProcessController {
             @AuthenticationPrincipal AuthenticatedAccount account,
             HttpServletRequest httpRequest) {
         lifecycle.publish(processId, account.accountId(), httpRequest.getRemoteAddr());
+    }
+
+    /** Etapa de divulgação definida manualmente (docs/DECISOES.md). */
+    @PostMapping("/{processId}/stage")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('RESULTADO_PUBLICAR')")
+    void changeStage(
+            @PathVariable UUID processId,
+            @Valid @RequestBody ChangeStageRequest request,
+            @AuthenticationPrincipal AuthenticatedAccount account,
+            HttpServletRequest httpRequest) {
+        lifecycle.changeStage(processId, request.stage(), account.accountId(), httpRequest.getRemoteAddr());
     }
 
     @PostMapping("/{processId}/extend-registration")

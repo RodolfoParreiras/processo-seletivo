@@ -1,9 +1,12 @@
 package br.gov.pmps.processoseletivo.application.usecase.process;
 
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessNotice;
+import br.gov.pmps.processoseletivo.domain.model.process.ProcessStage;
+import br.gov.pmps.processoseletivo.domain.model.process.ProcessStageHistory;
 import br.gov.pmps.processoseletivo.domain.model.process.SelectionProcess;
 import br.gov.pmps.processoseletivo.domain.model.process.StatusChange;
 import br.gov.pmps.processoseletivo.domain.repository.ProcessNoticeRepository;
+import br.gov.pmps.processoseletivo.domain.repository.ProcessStageHistoryRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -18,11 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProcessLifecycleUseCase {
 
     private final ProcessNoticeRepository noticeRepository;
+    private final ProcessStageHistoryRepository stageHistoryRepository;
     private final ProcessSupport support;
     private final Clock clock;
 
-    public ProcessLifecycleUseCase(ProcessNoticeRepository noticeRepository, ProcessSupport support, Clock clock) {
+    public ProcessLifecycleUseCase(
+            ProcessNoticeRepository noticeRepository,
+            ProcessStageHistoryRepository stageHistoryRepository,
+            ProcessSupport support,
+            Clock clock) {
         this.noticeRepository = noticeRepository;
+        this.stageHistoryRepository = stageHistoryRepository;
         this.support = support;
         this.clock = clock;
     }
@@ -37,10 +46,23 @@ public class ProcessLifecycleUseCase {
         StatusChange change = process.publish(draftNotice.isPresent(), now);
         draftNotice.get().publish(actorId, now);
         support.recordStatusChange(process, change, null, actorId, ipAddress, now);
+        stageHistoryRepository.save(
+                new ProcessStageHistory(processId, null, process.getStage(), actorId, now));
 
         // Se o início das inscrições já chegou, abre imediatamente em vez de esperar a rotina automática.
         process.advanceBySchedule(now)
                 .ifPresent(opening -> support.recordStatusChange(process, opening, null, null, ipAddress, now));
+    }
+
+    /** Etapa de divulgação (Edital Disponível, Gabarito Disponível, Resultado Preliminar, Resultado Final). */
+    @Transactional
+    public void changeStage(UUID processId, ProcessStage stage, UUID actorId, String ipAddress) {
+        Instant now = clock.instant();
+        SelectionProcess process = support.findForUpdate(processId);
+        ProcessStage previous = process.changeStage(stage, now);
+        stageHistoryRepository.save(new ProcessStageHistory(processId, previous, stage, actorId, now));
+        support.audit("PROCESS_STAGE_CHANGED", process, actorId, ipAddress,
+                Map.of("from", previous == null ? "" : previous.name(), "to", stage.name()));
     }
 
     @Transactional

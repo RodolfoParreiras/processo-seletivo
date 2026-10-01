@@ -69,8 +69,6 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
                and a.status = br.gov.pmps.processoseletivo.domain.model.application.ApplicationStatus.RASCUNHO
                and (p.status in (
                         br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus.INSCRICOES_ENCERRADAS,
-                        br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus.RESULTADO_PRELIMINAR,
-                        br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus.RESULTADO_DEFINITIVO,
                         br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus.ARQUIVADO,
                         br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus.CANCELADO)
                     or (p.status = br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus.INSCRICOES_ABERTAS

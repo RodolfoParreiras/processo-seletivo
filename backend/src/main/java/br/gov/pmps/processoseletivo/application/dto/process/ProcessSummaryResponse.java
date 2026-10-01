@@ -1,5 +1,6 @@
 package br.gov.pmps.processoseletivo.application.dto.process;
 
+import br.gov.pmps.processoseletivo.domain.model.process.ProcessStage;
 import br.gov.pmps.processoseletivo.domain.model.process.ProcessStatus;
 import br.gov.pmps.processoseletivo.domain.model.process.SelectionProcess;
 import java.time.Instant;
@@ -13,13 +14,14 @@ public record ProcessSummaryResponse(
         String title,
         String department,
         ProcessStatus status,
+        ProcessStage stage,
         Instant registrationStart,
         Instant registrationEnd) {
 
     public static ProcessSummaryResponse from(SelectionProcess process) {
         return new ProcessSummaryResponse(
                 process.getId(), process.getNumber(), process.getYear(), process.getDisplayNumber(), process.getTitle(),
-                process.getDepartment(), process.getStatus(), process.getRegistrationStart(),
+                process.getDepartment(), process.getStatus(), process.getStage(), process.getRegistrationStart(),
                 process.getRegistrationEnd());
     }
 }

@@ -136,7 +136,7 @@ class ApplicationDecisionTest extends PostgresIntegrationTest {
     @Test
     void decisionsBlockedAfterFinalResult() throws Exception {
         closeRegistrations();
-        jdbcTemplate.update("update selection_process set status = 'RESULTADO_DEFINITIVO' where id = ?", process.id());
+        jdbcTemplate.update("update selection_process set stage = 'RESULTADO_FINAL' where id = ?", process.id());
 
         defer(decider, null).andExpect(status().isConflict());
     }

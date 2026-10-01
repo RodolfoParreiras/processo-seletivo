@@ -97,6 +97,8 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | POST | `/api/admin/processes/{id}/notices` (multipart) | `PROCESSO_EDITAR`; após publicação exige `reason` (retificação) |
 | POST | `/api/admin/processes/{id}/extend-registration` | `PROCESSO_EDITAR` |
 | POST | `/api/admin/processes/{id}/publish` | `PROCESSO_PUBLICAR` |
+| POST | `/api/admin/processes/{id}/stage` | `RESULTADO_PUBLICAR`; etapa manual (lista fixa) |
+| GET | `/api/admin/processes/{id}/stage-history` | `PROCESSO_VISUALIZAR` |
 | POST | `/api/admin/processes/{id}/suspend`, `/resume`, `/cancel`, `/archive` | `PROCESSO_ENCERRAR`; exigem `reason` |
 | GET, POST | `/api/candidate/applications` | Candidato; lista as próprias inscrições / inicia rascunho |
 | GET, DELETE | `/api/candidate/applications/{id}` | Candidato; detalhe / descarte do rascunho |

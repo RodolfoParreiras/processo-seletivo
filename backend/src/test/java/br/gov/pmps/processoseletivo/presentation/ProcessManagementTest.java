@@ -251,6 +251,40 @@ class ProcessManagementTest extends PostgresIntegrationTest {
     class Lifecycle {
 
         @Test
+        void stageIsChosenManuallyWithPermissionAndHistory() throws Exception {
+            UUID processId = publishedProcess(futureStart(), futureEnd());
+            Cookie publisher = new AdminTestAccounts(jdbcTemplate, passwordEncoder, mockMvc)
+                    .sessionWith("PROCESSO_VISUALIZAR", "RESULTADO_PUBLICAR");
+
+            changeStage(admin, processId, "GABARITO_DISPONIVEL").andExpect(status().isForbidden());
+            changeStage(publisher, processId, "GABARITO_DISPONIVEL").andExpect(status().isNoContent());
+            changeStage(publisher, processId, "ETAPA_INEXISTENTE").andExpect(status().isBadRequest());
+
+            mockMvc.perform(get("/api/processes/{id}", processId))
+                    .andExpect(jsonPath("$.status").value("PUBLICADO"))
+                    .andExpect(jsonPath("$.stage").value("GABARITO_DISPONIVEL"));
+            mockMvc.perform(get("/api/admin/processes/{id}/stage-history", processId).cookie(admin))
+                    .andExpect(jsonPath("$[0].toStage").value("EDITAL_DISPONIVEL"))
+                    .andExpect(jsonPath("$[1].fromStage").value("EDITAL_DISPONIVEL"))
+                    .andExpect(jsonPath("$[1].toStage").value("GABARITO_DISPONIVEL"));
+        }
+
+        @Test
+        void archivingRequiresFinalResultStage() throws Exception {
+            UUID processId = publishedProcess(Instant.now().minus(Duration.ofHours(1)), futureEnd());
+            jdbcTemplate.update("update selection_process set registration_end = now() - interval '1 minute' where id = ?",
+                    processId);
+            advanceProcessStatuses.execute();
+            Cookie publisher = new AdminTestAccounts(jdbcTemplate, passwordEncoder, mockMvc)
+                    .sessionWith("PROCESSO_VISUALIZAR", "RESULTADO_PUBLICAR");
+
+            lifecycle(processId, "archive", "Encerrado").andExpect(status().isConflict());
+            changeStage(publisher, processId, "RESULTADO_FINAL").andExpect(status().isNoContent());
+            lifecycle(processId, "archive", "Encerrado").andExpect(status().isNoContent());
+            assertThat(statusOf(processId)).isEqualTo("ARQUIVADO");
+        }
+
+        @Test
         void publishingAfterStartOpensRegistrationImmediately() throws Exception {
             UUID processId = publishedProcess(Instant.now().minus(Duration.ofHours(1)), futureEnd());
 
@@ -368,6 +402,11 @@ class ProcessManagementTest extends PostgresIntegrationTest {
         return mockMvc.perform(post("/api/admin/processes/{id}/" + operation, processId).with(csrf()).cookie(admin)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"reason\": \"%s\"}".formatted(reason)));
+    }
+
+    private ResultActions changeStage(Cookie session, UUID processId, String stage) throws Exception {
+        return mockMvc.perform(post("/api/admin/processes/{id}/stage", processId).with(csrf()).cookie(session)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"stage\": \"%s\"}".formatted(stage)));
     }
 
     private String statusOf(UUID processId) {

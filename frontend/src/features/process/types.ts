@@ -3,8 +3,6 @@ export type ProcessStatus =
   | "PUBLICADO"
   | "INSCRICOES_ABERTAS"
   | "INSCRICOES_ENCERRADAS"
-  | "RESULTADO_PRELIMINAR"
-  | "RESULTADO_DEFINITIVO"
   | "ARQUIVADO"
   | "SUSPENSO"
   | "CANCELADO";
@@ -14,11 +12,19 @@ export const STATUS_LABELS: Record<ProcessStatus, string> = {
   PUBLICADO: "Publicado",
   INSCRICOES_ABERTAS: "Inscrições abertas",
   INSCRICOES_ENCERRADAS: "Inscrições encerradas",
-  RESULTADO_PRELIMINAR: "Resultado preliminar",
-  RESULTADO_DEFINITIVO: "Resultado definitivo",
   ARQUIVADO: "Arquivado",
   SUSPENSO: "Suspenso",
   CANCELADO: "Cancelado",
+};
+
+export type ProcessStage = "EDITAL_DISPONIVEL" | "GABARITO_DISPONIVEL" | "RESULTADO_PRELIMINAR" | "RESULTADO_FINAL";
+
+/** Etapa de divulgação, definida manualmente pelo administrador. */
+export const STAGE_LABELS: Record<ProcessStage, string> = {
+  EDITAL_DISPONIVEL: "Edital Disponível",
+  GABARITO_DISPONIVEL: "Gabarito Disponível",
+  RESULTADO_PRELIMINAR: "Resultado Preliminar",
+  RESULTADO_FINAL: "Resultado Final",
 };
 
 export interface ProcessSummary {
@@ -28,6 +34,7 @@ export interface ProcessSummary {
   title: string;
   department: string;
   status: ProcessStatus;
+  stage: ProcessStage | null;
   registrationStart: string;
   registrationEnd: string;
 }

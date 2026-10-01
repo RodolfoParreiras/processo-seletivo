@@ -12,6 +12,8 @@ import {
   PositionsEditor,
   ReasonAction,
   RequirementsEditor,
+  StageHistory,
+  StageSelector,
   StatusHistory,
 } from "@/features/admin/process/ProcessEditors";
 import { AdminProcessDocuments } from "@/features/process/ProcessDocuments";
@@ -19,13 +21,7 @@ import { ProcessInformation } from "@/features/process/ProcessInformation";
 import type { ProcessDetail, ProcessStatus } from "@/features/process/types";
 import { ApiError, apiGet, apiPost, apiPut } from "@/lib/api";
 
-const SUSPENDABLE: ProcessStatus[] = [
-  "PUBLICADO",
-  "INSCRICOES_ABERTAS",
-  "INSCRICOES_ENCERRADAS",
-  "RESULTADO_PRELIMINAR",
-  "RESULTADO_DEFINITIVO",
-];
+const SUSPENDABLE: ProcessStatus[] = ["PUBLICADO", "INSCRICOES_ABERTAS", "INSCRICOES_ENCERRADAS"];
 
 function ProcessAdministration({ processId, can }: { processId: string; can: AdminContext["can"] }) {
   const [process, setProcess] = useState<ProcessDetail | null>(null);
@@ -122,7 +118,7 @@ function ProcessAdministration({ processId, can }: { processId: string; can: Adm
               <ReasonAction label="Retomar" endpoint={`${base}/resume`} onDone={reload}
                 description="O processo volta à situação anterior à suspensão." />
             )}
-            {can("PROCESSO_ENCERRAR") && process.status === "RESULTADO_DEFINITIVO" && (
+            {can("PROCESSO_ENCERRAR") && process.status === "INSCRICOES_ENCERRADAS" && process.stage === "RESULTADO_FINAL" && (
               <ReasonAction label="Arquivar" endpoint={`${base}/archive`} onDone={reload}
                 description="O processo será arquivado. Esta ação não pode ser desfeita." />
             )}
@@ -134,12 +130,19 @@ function ProcessAdministration({ processId, can }: { processId: string; can: Adm
         </div>
       )}
 
+      {!isDraft && !isTerminal && process.status !== "SUSPENSO" && can("RESULTADO_PUBLICAR") && (
+        <div className="card">
+          <StageSelector process={process} onChanged={reload} />
+        </div>
+      )}
+
       <div className="card">
         <AdminProcessDocuments processId={process.id} canPublish={can("RESULTADO_PUBLICAR")} />
       </div>
 
       <div className="card">
         <StatusHistory processId={process.id} version={version} />
+        <StageHistory processId={process.id} version={version} />
       </div>
     </>
   );
