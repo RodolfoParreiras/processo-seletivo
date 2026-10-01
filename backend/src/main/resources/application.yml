@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: processo-seletivo
+
+  # Impede o usuário em memória com senha gerada e impressa no log (AI_RULES §14 e §30).
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_APP_USER}
+    password: ${DB_APP_PASSWORD}
+
+  # Migrations executadas com o dono do schema; a aplicação usa um usuário apenas com DML.
+  flyway:
+    user: ${DB_OWNER_USER}
+    password: ${DB_OWNER_PASSWORD}
+    schemas: app
+    default-schema: app
+    create-schemas: false
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: app
+        jdbc:
+          time_zone: UTC
+
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+
+server:
+  forward-headers-strategy: framework
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-exception: false
+    include-binding-errors: never
+    whitelabel:
+      enabled: false
+  servlet:
+    session:
+      tracking-modes: cookie
+      cookie:
+        http-only: true
+        secure: true
+        same-site: strict
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

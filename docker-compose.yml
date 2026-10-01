@@ -1,0 +1,66 @@
+name: processo-seletivo
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?defina no .env}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?defina no .env}
+      DB_OWNER_USER: ${DB_OWNER_USER:?defina no .env}
+      DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD:?defina no .env}
+      DB_APP_USER: ${DB_APP_USER:?defina no .env}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD:?defina no .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./infra/postgres/01-create-roles.sh:/docker-entrypoint-initdb.d/01-create-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Sem porta publicada: o banco só é acessível pela rede interna do compose.
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_OWNER_USER: ${DB_OWNER_USER}
+      DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD}
+      DB_APP_USER: ${DB_APP_USER}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+      TZ: UTC
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    mem_limit: 768m
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    mem_limit: 384m
+
+  nginx:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${HTTP_PORT:-8080}:80"
+    volumes:
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    mem_limit: 64m
+
+volumes:
+  postgres-data:
