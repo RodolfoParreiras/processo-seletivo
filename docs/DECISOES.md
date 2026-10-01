@@ -149,3 +149,11 @@ Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
 - Ao mudar perfis ou permissões, as sessões dos administradores afetados são encerradas para que as novas permissões valham no próximo acesso.
 - O perfil Administrador Geral é do sistema e não pode ser alterado. Perfis personalizados só podem ser excluídos sem administradores vinculados.
 - A auditoria é somente consulta (`AUDITORIA_VISUALIZAR`). Para ações de candidatos, a consulta mostra apenas o tipo de conta, não o nome (minimização).
+
+## Exportações e relatórios (fase 8)
+
+- Planilha Excel para a classificação externa (permissão `EXPORTACAO_GERAR`), uma linha por inscrição confirmada: número da inscrição, nome, CPF, data de nascimento, cargo, situação, pessoa com deficiência e necessidade de adaptações (estas duas somente para quem tem `DADOS_PCD_VISUALIZAR`) e data/hora da inscrição. Filtro opcional por situação.
+- Relatório em PDF (permissão `RELATORIO_GERAR`): resumo de inscrições por cargo e situação, seguido da relação de inscrições (número, nome, CPF mascarado, cargo, situação). Filtro opcional por situação.
+- Dados vêm do snapshot da inscrição (dados do momento da confirmação).
+- Toda exportação é auditada com usuário, processo, tipo, filtros, quantidade de registros e IP (especificação §35).
+- Geração em streaming, sem carregar todas as inscrições na memória (especificação §61).

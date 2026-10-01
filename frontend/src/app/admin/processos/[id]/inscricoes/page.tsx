@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AdminShell } from "@/features/admin/AdminShell";
+import { type AdminContext, AdminShell } from "@/features/admin/AdminShell";
 import { APPLICATION_STATUS_LABELS, type ApplicationStatus } from "@/features/application/types";
 import { formatDateTime, type Page } from "@/features/process/types";
 import { apiGet } from "@/lib/api";
@@ -19,7 +19,7 @@ interface AdminApplicationRow {
 
 const FILTERS: (ApplicationStatus | "")[] = ["", "RECEBIDA", "DEFERIDA", "INDEFERIDA"];
 
-function ApplicationsTable({ processId }: { processId: string }) {
+function ApplicationsTable({ processId, can }: { processId: string; can: AdminContext["can"] }) {
   const [status, setStatus] = useState<ApplicationStatus | "">("");
   const [pageNumber, setPageNumber] = useState(0);
   const [page, setPage] = useState<Page<AdminApplicationRow> | null>(null);
@@ -44,6 +44,21 @@ function ApplicationsTable({ processId }: { processId: string }) {
           ))}
         </select>
       </div>
+      {(can("EXPORTACAO_GERAR") || can("RELATORIO_GERAR")) && (
+        <div className="actions">
+          {can("EXPORTACAO_GERAR") && (
+            <a className="button" href={`/api/admin/processes/${processId}/exports/applications.xlsx${status ? `?status=${status}` : ""}`}>
+              Exportar planilha (Excel)
+            </a>
+          )}
+          {can("RELATORIO_GERAR") && (
+            <a className="button secondary" href={`/api/admin/processes/${processId}/reports/applications.pdf${status ? `?status=${status}` : ""}`}>
+              Relatório (PDF)
+            </a>
+          )}
+          <span className="hint">Usa o filtro de situação selecionado. Exportações são registradas na auditoria.</span>
+        </div>
+      )}
       {failed && <p className="field-error">Não foi possível carregar as inscrições.</p>}
       {page && (
         <>
@@ -87,11 +102,11 @@ export default function AdminProcessApplicationsPage() {
   const { id } = useParams<{ id: string }>();
   return (
     <AdminShell>
-      {() => (
+      {({ can }) => (
         <div className="card">
           <h1>Inscrições do processo</h1>
           <p><Link href={`/admin/processos/${id}`}>Voltar para o processo</Link></p>
-          <ApplicationsTable processId={id} />
+          <ApplicationsTable processId={id} can={can} />
         </div>
       )}
     </AdminShell>

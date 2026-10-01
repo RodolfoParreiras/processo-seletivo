@@ -53,6 +53,11 @@ spring:
         jdbc:
           time_zone: UTC
 
+  mvc:
+    async:
+      # Exportações grandes são escritas em fluxo na resposta.
+      request-timeout: 5m
+
   servlet:
     multipart:
       # Limite técnico geral (edital). Documentos de candidatos têm limite próprio de 2 MB, aplicado no upload.

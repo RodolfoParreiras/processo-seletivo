@@ -122,6 +122,8 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | GET | `/api/admin/roles` | `PERMISSAO_GERENCIAR` ou `USUARIO_GERENCIAR` |
 | GET, POST, PUT, DELETE | `/api/admin/permissions`, `/api/admin/roles[/{código}]` | `PERMISSAO_GERENCIAR` |
 | GET | `/api/admin/audit` | `AUDITORIA_VISUALIZAR`; filtros: ação, resultado, autor, alvo, período |
+| GET | `/api/admin/processes/{id}/exports/applications.xlsx[?status=]` | `EXPORTACAO_GERAR`; colunas de PcD só com `DADOS_PCD_VISUALIZAR`; auditado |
+| GET | `/api/admin/processes/{id}/reports/applications.pdf[?status=]` | `RELATORIO_GERAR`; CPF mascarado, sem dados de PcD; auditado |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 
