@@ -40,7 +40,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               <img src="/logo-prefeitura.png" alt="Prefeitura Municipal de Paraíba do Sul" width={220} height={44} />
             </Link>
             <nav className="header-actions" aria-label="Acesso do candidato">
-              <Link href="/cadastro" className="button secondary">Criar conta</Link>
               <Link href="/entrar" className="button">Área do Candidato</Link>
             </nav>
           </div>
@@ -51,11 +50,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <div>
               <strong>Prefeitura Municipal de Paraíba do Sul</strong>
               <div className="muted">R. Visconde da Paraíba, 11 · Centro · Paraíba do Sul/RJ · 25850-000</div>
-            </div>
-            <div className="muted">
-              <a href={PORTAL_URL} rel="noopener noreferrer">Portal da Prefeitura</a>
-              <br />
-              <Link href="/verificar-comprovante">Validar documentos</Link>
             </div>
             <div className="muted copyright">© {new Date().getFullYear()} Prefeitura Municipal de Paraíba do Sul</div>
           </div>
