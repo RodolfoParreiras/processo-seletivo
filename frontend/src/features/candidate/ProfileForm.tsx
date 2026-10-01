@@ -107,6 +107,7 @@ export function ProfileForm({ onProfileLoaded }: { onProfileLoaded?: (profile: C
       </p>
       <ErrorAlert error={apiError} />
       <SuccessAlert message={message} />
+      <p className="hint">Campos marcados com * são obrigatórios.</p>
       <form onSubmit={handleSubmit} noValidate>
         <PersonalDataFields data={data} errors={errors} onChange={setData} />
         <div className="actions">

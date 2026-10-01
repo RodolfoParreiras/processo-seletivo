@@ -34,6 +34,19 @@ function validateCredentials(credentials: Credentials, personalData: PersonalDat
   return errors;
 }
 
+/** Regras exibidas como lista; cada uma é atendida quando nenhuma das mensagens associadas aparece. */
+const PASSWORD_RULES = [
+  { label: "Mínimo de 8 caracteres", problems: ["No mínimo 8 caracteres."] },
+  { label: "Letra maiúscula", problems: ["Letra maiúscula."] },
+  { label: "Letra minúscula", problems: ["Letra minúscula."] },
+  { label: "Número", problems: ["Número."] },
+  { label: "Caractere especial", problems: ["Caractere especial."] },
+  {
+    label: "Sem nome, sobrenome ou data de nascimento",
+    problems: ["Não pode conter seu nome ou sobrenome.", "Não pode conter sua data de nascimento."],
+  },
+];
+
 export function RegisterForm() {
   const [personalData, setPersonalData] = useState<PersonalData>(EMPTY_PERSONAL_DATA);
   const [credentials, setCredentials] = useState<Credentials>({
@@ -84,86 +97,114 @@ export function RegisterForm() {
 
   if (registered) {
     return (
-      <main>
-        <div className="card">
-          <h1>Cadastro concluído</h1>
+      <main className="auth-page">
+        <div className="card auth-card">
+          <div className="auth-header">
+            <span className="auth-icon"><i className="ti ti-circle-check" aria-hidden="true" /></span>
+            <h1>Cadastro concluído</h1>
+          </div>
           <SuccessAlert message="Sua conta foi criada. Entre com seu CPF e senha." />
-          <Link className="button" href="/entrar">Entrar</Link>
+          <Link className="button block" href="/entrar">Entrar</Link>
         </div>
       </main>
     );
   }
 
-  const passwordHints = credentials.password
-    ? passwordProblems(credentials.password, personalData.fullName, personalData.birthDate)
-    : [];
+  const passwordIssues = passwordProblems(credentials.password, personalData.fullName, personalData.birthDate);
+  const passwordRules = PASSWORD_RULES.map((rule) => ({
+    label: rule.label,
+    met: credentials.password.length > 0 && !rule.problems.some((problem) => passwordIssues.includes(problem)),
+  }));
 
   return (
-    <main>
-      <div className="card">
-        <h1>Criar conta de candidato</h1>
-        <p className="hint">Todos os campos são obrigatórios, exceto o complemento.</p>
+    <main className="auth-page">
+      <div className="card auth-card wide">
+        <div className="auth-header">
+          <span className="auth-icon"><i className="ti ti-user-plus" aria-hidden="true" /></span>
+          <h1>Criar conta</h1>
+          <p className="hint">Campos marcados com * são obrigatórios.</p>
+        </div>
         <ErrorAlert error={apiError} />
-        <form onSubmit={handleSubmit} noValidate>
+        <form className="numbered-sections" onSubmit={handleSubmit} noValidate>
           <fieldset>
             <legend>Identificação</legend>
-            <TextField
-              name="cpf"
-              label="CPF"
-              inputMode="numeric"
-              autoComplete="off"
-              value={credentials.cpf}
-              error={errors.cpf}
-              onChange={(event) => setCredential("cpf", event.target.value)}
-            />
-            <TextField
-              name="email"
-              label="E-mail"
-              type="email"
-              autoComplete="email"
-              maxLength={254}
-              value={credentials.email}
-              error={errors.email}
-              onChange={(event) => setCredential("email", event.target.value)}
-            />
+            <div className="grid">
+              <TextField
+                name="cpf"
+                label="CPF"
+                icon="id"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="000.000.000-00"
+                required
+                value={credentials.cpf}
+                error={errors.cpf}
+                onChange={(event) => setCredential("cpf", event.target.value)}
+              />
+              <TextField
+                name="email"
+                label="E-mail"
+                icon="mail"
+                type="email"
+                autoComplete="email"
+                placeholder="Digite seu e-mail"
+                maxLength={254}
+                required
+                value={credentials.email}
+                error={errors.email}
+                onChange={(event) => setCredential("email", event.target.value)}
+              />
+            </div>
           </fieldset>
 
           <PersonalDataFields data={personalData} errors={errors} onChange={setPersonalData} />
 
           <fieldset>
             <legend>Senha de acesso</legend>
-            <TextField
-              name="password"
-              label="Senha"
-              type="password"
-              autoComplete="new-password"
-              value={credentials.password}
-              error={errors.password}
-              onChange={(event) => setCredential("password", event.target.value)}
-            />
-            <p className="hint">
-              Mínimo de 8 caracteres, com letra maiúscula, minúscula, número e caractere especial. Não use seu
-              nome, sobrenome ou data de nascimento.
-            </p>
-            {passwordHints.length > 0 && <p className="field-error">Falta: {passwordHints.join(" ")}</p>}
-            <TextField
-              name="passwordConfirmation"
-              label="Confirme a senha"
-              type="password"
-              autoComplete="new-password"
-              value={credentials.passwordConfirmation}
-              error={errors.passwordConfirmation}
-              onChange={(event) => setCredential("passwordConfirmation", event.target.value)}
-            />
+            <div className="grid">
+              <TextField
+                name="password"
+                label="Senha"
+                icon="lock"
+                type="password"
+                autoComplete="new-password"
+                placeholder="Crie uma senha"
+                required
+                value={credentials.password}
+                error={errors.password}
+                onChange={(event) => setCredential("password", event.target.value)}
+              />
+              <TextField
+                name="passwordConfirmation"
+                label="Confirme a senha"
+                icon="lock"
+                type="password"
+                autoComplete="new-password"
+                placeholder="Repita a senha"
+                required
+                value={credentials.passwordConfirmation}
+                error={errors.passwordConfirmation}
+                onChange={(event) => setCredential("passwordConfirmation", event.target.value)}
+              />
+            </div>
+            <ul className="password-rules" aria-label="Requisitos da senha">
+              {passwordRules.map((rule) => (
+                <li key={rule.label} className={rule.met ? "met" : undefined}>
+                  <i className={rule.met ? "ti ti-circle-check" : "ti ti-circle"} aria-hidden="true" />
+                  {rule.label}
+                  <span className="sr-only">{rule.met ? " (atendido)" : " (pendente)"}</span>
+                </li>
+              ))}
+            </ul>
           </fieldset>
 
-          <div className="actions">
-            <button type="submit" disabled={submitting}>
-              {submitting ? "Enviando..." : "Criar conta"}
-            </button>
-            <Link href="/entrar">Já tenho conta</Link>
-          </div>
+          <button type="submit" className="block" disabled={submitting}>
+            {submitting ? "Enviando..." : "Criar conta"}
+          </button>
         </form>
+        <p className="auth-back">
+          Já tem conta? <Link href="/entrar">Entrar</Link>
+        </p>
       </div>
     </main>
   );

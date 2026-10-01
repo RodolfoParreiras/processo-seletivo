@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { ErrorAlert } from "@/components/FormAlert";
+import { TextField } from "@/features/candidate/PersonalDataFields";
 import { ApiError, apiPost, type SessionInfo } from "@/lib/api";
 import { maskCpf, onlyDigits, safeRedirectPath } from "@/lib/validation";
 
@@ -20,7 +21,6 @@ export function LoginForm({ title, subtitle, endpoint, redirectTo, forgotPasswor
   const router = useRouter();
   const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,49 +49,13 @@ export function LoginForm({ title, subtitle, endpoint, redirectTo, forgotPasswor
         </div>
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit} noValidate>
-          <div className="field">
-            <label htmlFor="cpf">CPF</label>
-            <div className="input-icon">
-              <i className="ti ti-id" aria-hidden="true" />
-              <input
-                id="cpf"
-                name="cpf"
-                inputMode="numeric"
-                autoComplete="username"
-                placeholder="000.000.000-00"
-                required
-                value={cpf}
-                onChange={(event) => setCpf(maskCpf(event.target.value))}
-              />
-            </div>
-          </div>
-          <div className="field">
-            <div className="label-row">
-              <label htmlFor="password">Senha</label>
-              <Link href={forgotPasswordHref}>Esqueci minha senha</Link>
-            </div>
-            <div className="input-icon">
-              <i className="ti ti-lock" aria-hidden="true" />
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              <button
-                type="button"
-                className="input-toggle"
-                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                aria-pressed={showPassword}
-                onClick={() => setShowPassword((current) => !current)}
-              >
-                <i className={showPassword ? "ti ti-eye-off" : "ti ti-eye"} aria-hidden="true" />
-              </button>
-            </div>
-          </div>
+          <TextField name="cpf" label="CPF" icon="id" inputMode="numeric" autoComplete="username"
+            placeholder="000.000.000-00" required value={cpf}
+            onChange={(event) => setCpf(maskCpf(event.target.value))} />
+          <TextField name="password" label="Senha" icon="lock" type="password" autoComplete="current-password"
+            placeholder="Digite sua senha" required value={password}
+            labelAside={<Link href={forgotPasswordHref}>Esqueci minha senha</Link>}
+            onChange={(event) => setPassword(event.target.value)} />
           <button type="submit" className="block" disabled={submitting || !cpf || !password}>
             {submitting ? "Entrando..." : "Entrar"}
           </button>

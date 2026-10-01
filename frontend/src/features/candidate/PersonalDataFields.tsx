@@ -1,6 +1,6 @@
 "use client";
 
-import type { ChangeEvent, InputHTMLAttributes } from "react";
+import { type ChangeEvent, type InputHTMLAttributes, type ReactNode, useState } from "react";
 import { ADAPTATIONS, maskCep, maskPhone, onlyDigits, UFS } from "@/lib/validation";
 
 export type Adaptation = (typeof ADAPTATIONS)[number]["value"];
@@ -94,20 +94,55 @@ interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   value: string;
   error?: string;
+  /** Nome de um ícone Tabler (sem o prefixo "ti-") exibido dentro do campo. */
+  icon?: string;
+  /** Conteúdo exibido à direita do rótulo, como o link "Esqueci minha senha". */
+  labelAside?: ReactNode;
 }
 
-export function TextField({ name, label, value, error, ...props }: FieldProps) {
+/** Marca visual de campo obrigatório; leitores de tela usam o atributo required do campo. */
+export function RequiredMark() {
+  return <span className="required-mark" aria-hidden="true"> *</span>;
+}
+
+export function TextField({ name, label, value, error, icon, labelAside, type, required, ...props }: FieldProps) {
+  const [visible, setVisible] = useState(false);
+  const isPassword = type === "password";
+  const labelElement = (
+    <label htmlFor={name}>
+      {label}
+      {required && <RequiredMark />}
+    </label>
+  );
+  const wrapperClass = ["input-wrap", icon && "with-icon", isPassword && "with-toggle"].filter(Boolean).join(" ");
+
   return (
     <div className="field">
-      <label htmlFor={name}>{label}</label>
-      <input
-        id={name}
-        name={name}
-        value={value}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${name}-error` : undefined}
-        {...props}
-      />
+      {labelAside ? <div className="label-row">{labelElement}{labelAside}</div> : labelElement}
+      <div className={wrapperClass}>
+        {icon && <i className={`ti ti-${icon}`} aria-hidden="true" />}
+        <input
+          id={name}
+          name={name}
+          value={value}
+          type={isPassword && visible ? "text" : type}
+          required={required}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${name}-error` : undefined}
+          {...props}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            className="input-toggle"
+            aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
+            aria-pressed={visible}
+            onClick={() => setVisible((current) => !current)}
+          >
+            <i className={visible ? "ti ti-eye-off" : "ti ti-eye"} aria-hidden="true" />
+          </button>
+        )}
+      </div>
       {error && (
         <p id={`${name}-error`} className="field-error">
           {error}
@@ -160,6 +195,7 @@ export function PersonalDataFields({ data, errors, onChange }: PersonalDataField
       value={String(data[name])}
       error={errors[name]}
       onChange={handleChange}
+      required
       {...props}
     />
   );
@@ -168,29 +204,29 @@ export function PersonalDataFields({ data, errors, onChange }: PersonalDataField
     <>
       <fieldset>
         <legend>Dados pessoais</legend>
-        {text("fullName", "Nome completo", { autoComplete: "name", maxLength: 150 })}
+        {text("fullName", "Nome completo", { autoComplete: "name", maxLength: 150, placeholder: "Digite seu nome completo" })}
         <div className="grid">
           {text("birthDate", "Data de nascimento", { type: "date", autoComplete: "bday" })}
-          {text("phone", "Telefone", { inputMode: "tel", autoComplete: "tel" })}
+          {text("phone", "Telefone", { inputMode: "tel", autoComplete: "tel", placeholder: "(00) 00000-0000" })}
         </div>
-        {text("motherName", "Nome da mãe", { maxLength: 150 })}
+        {text("motherName", "Nome da mãe", { maxLength: 150, placeholder: "Digite o nome da mãe" })}
       </fieldset>
 
       <fieldset>
         <legend>Endereço</legend>
         <div className="grid">
-          {text("cep", "CEP", { inputMode: "numeric", autoComplete: "postal-code" })}
+          {text("cep", "CEP", { inputMode: "numeric", autoComplete: "postal-code", placeholder: "00000-000" })}
           {text("addressNumber", "Número", { maxLength: 10 })}
         </div>
         {text("street", "Endereço", { autoComplete: "address-line1", maxLength: 150 })}
-        {text("complement", "Complemento (opcional)", { autoComplete: "address-line2", maxLength: 60 })}
+        {text("complement", "Complemento", { autoComplete: "address-line2", maxLength: 60, required: false })}
         <div className="grid">
           {text("neighborhood", "Bairro", { maxLength: 80 })}
           {text("city", "Cidade", { autoComplete: "address-level2", maxLength: 80 })}
         </div>
         <div className="field">
-          <label htmlFor="uf">UF</label>
-          <select id="uf" name="uf" value={data.uf} onChange={handleChange} aria-invalid={Boolean(errors.uf)}>
+          <label htmlFor="uf">UF<RequiredMark /></label>
+          <select id="uf" name="uf" value={data.uf} onChange={handleChange} required aria-invalid={Boolean(errors.uf)}>
             <option value="">Selecione</option>
             {UFS.map((uf) => (
               <option key={uf} value={uf}>
@@ -203,8 +239,8 @@ export function PersonalDataFields({ data, errors, onChange }: PersonalDataField
       </fieldset>
 
       <fieldset>
-        <legend>Pessoa com deficiência?</legend>
-        <div className="options" role="radiogroup">
+        <legend>Pessoa com deficiência?<RequiredMark /></legend>
+        <div className="options choice" role="radiogroup" aria-required="true">
           <label>
             <input
               type="radio"
@@ -230,7 +266,7 @@ export function PersonalDataFields({ data, errors, onChange }: PersonalDataField
 
         {data.hasDisability === "SIM" && (
           <fieldset>
-            <legend>Necessidade de adaptações</legend>
+            <legend>Necessidade de adaptações<RequiredMark /></legend>
             <div className="options">
               {ADAPTATIONS.map((adaptation) => (
                 <label key={adaptation.value}>

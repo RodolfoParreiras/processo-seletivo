@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { ErrorAlert, SuccessAlert } from "@/components/FormAlert";
+import { TextField } from "@/features/candidate/PersonalDataFields";
 import { ApiError, apiPost } from "@/lib/api";
 
 interface ForgotPasswordFormProps {
@@ -32,32 +33,26 @@ export function ForgotPasswordForm({ endpoint, loginHref }: ForgotPasswordFormPr
   }
 
   return (
-    <main>
-      <div className="card">
-        <h1>Recuperar senha</h1>
-        <p className="hint">Informe o e-mail cadastrado. Você receberá um link válido por 30 minutos.</p>
+    <main className="auth-page">
+      <div className="card auth-card">
+        <div className="auth-header">
+          <span className="auth-icon"><i className="ti ti-key" aria-hidden="true" /></span>
+          <h1>Recuperar senha</h1>
+          <p className="hint">Informe o e-mail cadastrado. Enviaremos um link válido por 30 minutos.</p>
+        </div>
         <ErrorAlert error={error} />
         <SuccessAlert message={message} />
         <form onSubmit={handleSubmit} noValidate>
-          <div className="field">
-            <label htmlFor="email">E-mail</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </div>
-          <div className="actions">
-            <button type="submit" disabled={submitting || !email}>
-              {submitting ? "Enviando..." : "Enviar link"}
-            </button>
-            <Link href={loginHref}>Voltar para o login</Link>
-          </div>
+          <TextField name="email" label="E-mail" icon="mail" type="email" autoComplete="email"
+            placeholder="Digite seu e-mail" required value={email}
+            onChange={(event) => setEmail(event.target.value)} />
+          <button type="submit" className="block" disabled={submitting || !email}>
+            {submitting ? "Enviando..." : "Enviar link"}
+          </button>
         </form>
+        <p className="auth-back">
+          <Link href={loginHref}><i className="ti ti-arrow-left" aria-hidden="true" /> Voltar para o login</Link>
+        </p>
       </div>
     </main>
   );
