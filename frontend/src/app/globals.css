@@ -256,6 +256,50 @@ h2 {
   min-width: 160px;
 }
 
+.position-list {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.position-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fff;
+  flex-wrap: wrap;
+}
+
+.vacancy-count {
+  min-width: 56px;
+  text-align: center;
+  line-height: 1;
+}
+
+.vacancy-count strong {
+  display: block;
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: var(--color-navy);
+}
+
+.vacancy-count span {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.position-name {
+  flex: 1;
+  min-width: 160px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
 .tags {
   display: flex;
   gap: 8px;

@@ -45,11 +45,14 @@ function PositionsPanel({ processId }: { processId: string }) {
 
   const open = process.status === "INSCRICOES_ABERTAS";
   return (
-    <>
+    <div className="position-list">
       {process.positions.map((position) => (
-        <div key={position.id} className="panel-row">
-          <span className="grow">{position.name}</span>
-          <span className="hint">{position.vacancies} vaga(s)</span>
+        <div key={position.id} className="position-row">
+          <div className="vacancy-count">
+            <strong>{position.vacancies}</strong>
+            <span>{position.vacancies === 1 ? "vaga" : "vagas"}</span>
+          </div>
+          <span className="position-name">{position.name}</span>
           {open ? (
             <Link className="button action" href={enrollHref(process.id, position.id)}>Inscrever-se</Link>
           ) : (
@@ -59,7 +62,7 @@ function PositionsPanel({ processId }: { processId: string }) {
           )}
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
