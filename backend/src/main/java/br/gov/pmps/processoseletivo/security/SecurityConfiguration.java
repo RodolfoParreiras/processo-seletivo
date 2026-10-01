@@ -54,6 +54,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.PUT, "/api/auth/password").authenticated()
                         .requestMatchers("/api/candidate/**").hasRole("CANDIDATE")
                         .requestMatchers(HttpMethod.GET, "/api/processes", "/api/processes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/receipts/*").permitAll()
                         // Permissão específica de cada operação: @PreAuthorize nos controllers administrativos.
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())

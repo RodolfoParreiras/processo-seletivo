@@ -4,6 +4,7 @@ import br.gov.pmps.processoseletivo.application.dto.PageResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessDetailResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.ProcessSummaryResponse;
 import br.gov.pmps.processoseletivo.application.dto.process.StatusHistoryResponse;
+import br.gov.pmps.processoseletivo.application.file.FileDownload;
 import br.gov.pmps.processoseletivo.application.file.FileUploadService;
 import br.gov.pmps.processoseletivo.domain.model.Administrator;
 import br.gov.pmps.processoseletivo.domain.model.StoredFile;
@@ -17,7 +18,6 @@ import br.gov.pmps.processoseletivo.domain.repository.ProcessStatusHistoryReposi
 import br.gov.pmps.processoseletivo.domain.repository.SelectionProcessRepository;
 import br.gov.pmps.processoseletivo.domain.repository.StoredFileRepository;
 import br.gov.pmps.processoseletivo.shared.error.BusinessException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -47,10 +47,7 @@ public class ProcessQueryUseCase {
             .collect(Collectors.toCollection(() -> EnumSet.noneOf(ProcessStatus.class)));
     private static final Set<ProcessNotice.Status> PUBLISHED_NOTICES =
             EnumSet.of(ProcessNotice.Status.CURRENT, ProcessNotice.Status.SUPERSEDED);
-    private static final Sort LIST_ORDER = Sort.by(Sort.Order.desc("year"), Sort.Order.desc("number"));
-
-    public record FileDownload(String fileName, String contentType, long sizeBytes, InputStream content) {
-    }
+    private static final Sort LIST_ORDER = Sort.by(Sort.Order.desc("createdAt"));
 
     private final SelectionProcessRepository processRepository;
     private final ProcessNoticeRepository noticeRepository;
@@ -149,8 +146,8 @@ public class ProcessQueryUseCase {
         StoredFile file = storedFileRepository.findById(notice.getFileId())
                 .orElseThrow(ProcessQueryUseCase::noticeNotFound);
         // Nome gerado pelo sistema: o nome enviado não é repetido em cabeçalhos HTTP.
-        String fileName = "edital-%s-%d-v%d.pdf".formatted(
-                process.getNumber().replaceAll("[^0-9A-Za-z-]", "-"), process.getYear(), notice.getNoticeVersion());
+        String fileName = "edital-%s-v%d.pdf".formatted(
+                process.getDisplayNumber().replaceAll("[^0-9A-Za-z-]", "-"), notice.getNoticeVersion());
         return new FileDownload(fileName, file.getContentType(), file.getSizeBytes(), fileUploadService.open(file));
     }
 

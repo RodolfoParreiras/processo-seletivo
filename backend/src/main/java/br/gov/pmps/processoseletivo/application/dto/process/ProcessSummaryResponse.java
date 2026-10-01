@@ -9,6 +9,7 @@ public record ProcessSummaryResponse(
         UUID id,
         String number,
         int year,
+        String displayNumber,
         String title,
         String department,
         ProcessStatus status,
@@ -17,7 +18,7 @@ public record ProcessSummaryResponse(
 
     public static ProcessSummaryResponse from(SelectionProcess process) {
         return new ProcessSummaryResponse(
-                process.getId(), process.getNumber(), process.getYear(), process.getTitle(),
+                process.getId(), process.getNumber(), process.getYear(), process.getDisplayNumber(), process.getTitle(),
                 process.getDepartment(), process.getStatus(), process.getRegistrationStart(),
                 process.getRegistrationEnd());
     }

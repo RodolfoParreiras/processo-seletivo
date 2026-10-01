@@ -92,3 +92,13 @@ Todos os campos do §7 são obrigatórios, exceto o complemento do endereço.
 - Edital: somente PDF, até 10 MB (limite técnico definido pela equipe de desenvolvimento; ajustável em `app.files.notice-max-size`).
 - Abertura e encerramento automáticos das inscrições são verificados a cada minuto. Independentemente disso, uma inscrição só é aceita se a data atual estiver dentro do período.
 - Horários são armazenados em UTC e exibidos no horário de Brasília.
+
+## Inscrições (fase 5)
+
+- Número da inscrição: gerado pelo sistema, sequencial por processo, no formato `<número do processo>/<ano>-<sequencial de 5 dígitos>` (ex.: 001/2026-00001). Número e ano do processo continuam informados pelo administrador na criação.
+- Comprovante em PDF com código de autenticidade. Uma página pública confirma, a partir do código, número da inscrição, processo, cargo e data/hora, sem dados pessoais.
+- A inscrição só pode ser confirmada com todos os documentos obrigatórios enviados.
+- Documentos: PDF, JPG, JPEG ou PNG; até 2 MB cada; até 20 arquivos por inscrição; mais de um arquivo por documento exigido é permitido (ex.: vários certificados de um título).
+- Rascunhos não confirmados são descartados automaticamente quando o processo deixa de aceitar inscrições.
+- O e-mail de confirmação usa fila (outbox) no banco: falhas de envio ficam registradas e são tentadas novamente, sem desfazer a inscrição (especificação §28).
+- O comprovante contém nome, CPF mascarado, processo, cargo, número, data/hora, necessidade de adaptação declarada, termo de declaração e código de autenticidade.

@@ -47,6 +47,9 @@ public class SelectionProcess {
     @Column(name = "process_year", nullable = false)
     private int year;
 
+    @Column(name = "last_application_sequence", nullable = false)
+    private int lastApplicationSequence;
+
     @Column(nullable = false)
     private String title;
 
@@ -240,6 +243,22 @@ public class SelectionProcess {
         }
     }
 
+    /**
+     * Reserva o próximo número de inscrição (ex.: 1/2026-00001). Deve ser chamado com a linha do processo
+     * bloqueada, para que inscrições simultâneas não recebam o mesmo número.
+     */
+    public ApplicationNumber nextApplicationNumber(Instant now) {
+        if (!acceptsApplications(now)) {
+            throw new DomainRuleException("O período de inscrições deste processo não está aberto.");
+        }
+        lastApplicationSequence++;
+        return new ApplicationNumber(
+                lastApplicationSequence, "%s-%05d".formatted(getDisplayNumber(), lastApplicationSequence));
+    }
+
+    public record ApplicationNumber(int sequence, String formatted) {
+    }
+
     public boolean isDraft() {
         return status == ProcessStatus.RASCUNHO;
     }
@@ -324,6 +343,11 @@ public class SelectionProcess {
 
     public int getYear() {
         return year;
+    }
+
+    /** Número de exibição, ex.: 001/2026. */
+    public String getDisplayNumber() {
+        return number + "/" + year;
     }
 
     public String getTitle() {

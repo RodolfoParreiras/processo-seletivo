@@ -1,13 +1,16 @@
+import type { ReactNode } from "react";
 import { formatDateTime, type ProcessDetail, STATUS_LABELS } from "./types";
 
 interface ProcessInformationProps {
   process: ProcessDetail;
   /** Prefixo da URL de download do edital (pública ou administrativa). */
   noticeBaseUrl: string;
+  /** Ação exibida ao lado de cada cargo (ex.: botão de inscrição). */
+  positionAction?: (positionId: string) => ReactNode;
 }
 
 /** Dados do processo, cargos, documentos exigidos e versões do edital. */
-export function ProcessInformation({ process, noticeBaseUrl }: ProcessInformationProps) {
+export function ProcessInformation({ process, noticeBaseUrl, positionAction }: ProcessInformationProps) {
   return (
     <>
       <p>
@@ -33,6 +36,7 @@ export function ProcessInformation({ process, noticeBaseUrl }: ProcessInformatio
             <tr>
               <th scope="col">Cargo</th>
               <th scope="col">Vagas</th>
+              {positionAction && <th scope="col"><span className="hint">Ação</span></th>}
             </tr>
           </thead>
           <tbody>
@@ -40,6 +44,7 @@ export function ProcessInformation({ process, noticeBaseUrl }: ProcessInformatio
               <tr key={position.id}>
                 <td>{position.name}</td>
                 <td>{position.vacancies}</td>
+                {positionAction && <td>{positionAction(position.id)}</td>}
               </tr>
             ))}
           </tbody>

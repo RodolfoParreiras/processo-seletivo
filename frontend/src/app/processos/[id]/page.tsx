@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { StartApplicationButton } from "@/features/application/StartApplicationButton";
 import { ProcessInformation } from "@/features/process/ProcessInformation";
 import type { ProcessDetail } from "@/features/process/types";
 import { ApiError, apiGet } from "@/lib/api";
@@ -32,6 +33,11 @@ export default function PublicProcessPage() {
             <ProcessInformation
               process={process}
               noticeBaseUrl={`/api/processes/${encodeURIComponent(process.id)}/notices`}
+              positionAction={
+                process.status === "INSCRICOES_ABERTAS"
+                  ? (positionId) => <StartApplicationButton processId={process.id} positionId={positionId} />
+                  : undefined
+              }
             />
           </>
         )}

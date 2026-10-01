@@ -5,20 +5,21 @@ import { ChangePasswordForm } from "@/features/auth/ChangePasswordForm";
 import { SessionGate } from "@/features/auth/SessionGate";
 import { ChangeEmailForm } from "@/features/candidate/ChangeEmailForm";
 import { type CandidateProfile, ProfileForm } from "@/features/candidate/ProfileForm";
+import { MyApplications } from "@/features/application/MyApplications";
 import { PublicProcessList } from "@/features/process/PublicProcessList";
 
-type Section = "processos" | "dados" | "email" | "senha";
+type Section = "candidaturas" | "processos" | "dados" | "email" | "senha";
 
 const SECTIONS: { id: Section; label: string }[] = [
+  { id: "candidaturas", label: "Minhas Candidaturas" },
   { id: "processos", label: "Processos abertos" },
   { id: "dados", label: "Meus Dados" },
   { id: "email", label: "Alterar e-mail" },
   { id: "senha", label: "Alterar senha" },
 ];
 
-// "Minhas Candidaturas" entra na fase 5.
 export default function CandidateAreaPage() {
-  const [section, setSection] = useState<Section>("dados");
+  const [section, setSection] = useState<Section>("candidaturas");
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [profileVersion, setProfileVersion] = useState(0);
   const handleProfileLoaded = useCallback((loaded: CandidateProfile) => setProfile(loaded), []);
@@ -47,6 +48,7 @@ export default function CandidateAreaPage() {
               </button>
             </nav>
             <hr />
+            {section === "candidaturas" && <MyApplications />}
             {section === "processos" && (
               <PublicProcessList status="INSCRICOES_ABERTAS" emptyMessage="Nenhum processo com inscrições abertas no momento." />
             )}

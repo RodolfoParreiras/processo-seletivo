@@ -82,6 +82,20 @@ class DomainModelTest {
         assertThat(token.isUsable(NOW)).isFalse();
     }
 
+    @Test
+    void outboxMessageRetriesWithBackoffAndFailsAfterLimit() {
+        EmailOutboxMessage message = new EmailOutboxMessage("x@example.test", "Assunto", "Corpo", NOW);
+
+        for (int attempt = 1; attempt < EmailOutboxMessage.MAX_ATTEMPTS; attempt++) {
+            message.markFailed("MailSendException", NOW);
+            assertThat(message.getStatus()).isEqualTo(EmailOutboxMessage.Status.PENDING);
+        }
+        message.markFailed("MailSendException", NOW);
+
+        assertThat(message.getStatus()).isEqualTo(EmailOutboxMessage.Status.FAILED);
+        assertThat(message.getAttempts()).isEqualTo(EmailOutboxMessage.MAX_ATTEMPTS);
+    }
+
     private static UserAccount newAccount() {
         return new UserAccount(AccountType.CANDIDATE, Cpf.of(TestData.randomCpf()), TestData.randomEmail(), "hash", NOW);
     }

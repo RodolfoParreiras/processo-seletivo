@@ -13,6 +13,7 @@ public record ProcessDetailResponse(
         UUID id,
         String number,
         int year,
+        String displayNumber,
         String title,
         String department,
         ProcessStatus status,
@@ -36,7 +37,7 @@ public record ProcessDetailResponse(
 
     public static ProcessDetailResponse from(SelectionProcess process, List<ProcessNotice> notices) {
         return new ProcessDetailResponse(
-                process.getId(), process.getNumber(), process.getYear(), process.getTitle(),
+                process.getId(), process.getNumber(), process.getYear(), process.getDisplayNumber(), process.getTitle(),
                 process.getDepartment(), process.getStatus(), process.getRegistrationStart(),
                 process.getRegistrationEnd(), process.isMultipleApplicationsAllowed(),
                 process.isTitleEvaluationEnabled(), process.getPublishedAt(),

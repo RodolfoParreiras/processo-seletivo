@@ -97,6 +97,9 @@ app:
     path: ${STORAGE_PATH:/var/lib/processo-seletivo/storage}
   files:
     notice-max-size: 10MB
+    # Documentos do candidato (docs/DECISOES.md).
+    document-max-size: 2MB
+    max-documents-per-application: 20
   scheduling:
     # Abertura/encerramento automático das inscrições pelas datas.
     enabled: ${SCHEDULING_ENABLED:true}

@@ -22,7 +22,7 @@ public record AppProperties(
             Duration passwordSetupTokenValidity) {
     }
 
-    public record Files(DataSize noticeMaxSize) {
+    public record Files(DataSize noticeMaxSize, DataSize documentMaxSize, int maxDocumentsPerApplication) {
     }
 
     public record BootstrapAdmin(boolean enabled, String cpf, String fullName, String email) {

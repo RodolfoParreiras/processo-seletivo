@@ -98,6 +98,12 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | POST | `/api/admin/processes/{id}/extend-registration` | `PROCESSO_EDITAR` |
 | POST | `/api/admin/processes/{id}/publish` | `PROCESSO_PUBLICAR` |
 | POST | `/api/admin/processes/{id}/suspend`, `/resume`, `/cancel`, `/archive` | `PROCESSO_ENCERRAR`; exigem `reason` |
+| GET, POST | `/api/candidate/applications` | Candidato; lista as próprias inscrições / inicia rascunho |
+| GET, DELETE | `/api/candidate/applications/{id}` | Candidato; detalhe / descarte do rascunho |
+| POST, DELETE, GET | `/api/candidate/applications/{id}/documents[/{doc}[/file]]` | Candidato; envio e remoção só em rascunho |
+| POST | `/api/candidate/applications/{id}/confirm` | Candidato; exige documentos obrigatórios e período aberto |
+| GET | `/api/candidate/applications/{id}/receipt` | Candidato; comprovante em PDF |
+| GET | `/api/receipts/{código}` | Público; verificação do comprovante, sem dados pessoais |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 

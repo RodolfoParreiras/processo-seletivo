@@ -59,6 +59,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+        <!-- Comprovante de inscrição em PDF. Licença LGPL/MPL (sem as restrições AGPL do iText). -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>3.0.5</version>
+        </dependency>
         <!-- Exigido pelo Argon2PasswordEncoder do Spring Security. -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
