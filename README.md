@@ -104,6 +104,10 @@ Os demais administradores serão criados pela área administrativa (fase 7).
 | POST | `/api/candidate/applications/{id}/confirm` | Candidato; exige documentos obrigatórios e período aberto |
 | GET | `/api/candidate/applications/{id}/receipt` | Candidato; comprovante em PDF |
 | GET | `/api/receipts/{código}` | Público; verificação do comprovante, sem dados pessoais |
+| GET | `/api/admin/processes/{id}/applications` | `INSCRICAO_VISUALIZAR`; sem rascunhos |
+| GET | `/api/admin/applications/{id}`, `/documents/{doc}/file` | `INSCRICAO_VISUALIZAR`; dados PcD só com `DADOS_PCD_VISUALIZAR`; download auditado |
+| POST | `/api/admin/applications/{id}/defer` | `INSCRICAO_DEFERIR` |
+| POST | `/api/admin/applications/{id}/deny` | `INSCRICAO_INDEFERIR`; exige `reason` |
 
 Todo `POST` exige o header `X-XSRF-TOKEN` com o valor do cookie `XSRF-TOKEN`.
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ErrorAlert } from "@/components/FormAlert";
@@ -65,6 +66,11 @@ function ProcessAdministration({ processId, can }: { processId: string; can: Adm
         <p>{process.title}</p>
         <ErrorAlert error={error} />
         <ProcessInformation process={process} noticeBaseUrl={`${base}/notices`} />
+        {can("INSCRICAO_VISUALIZAR") && !isDraft && (
+          <p>
+            <Link className="button" href={`/admin/processos/${process.id}/inscricoes`}>Ver inscrições</Link>
+          </p>
+        )}
       </div>
 
       {isDraft && can("PROCESSO_EDITAR") && (

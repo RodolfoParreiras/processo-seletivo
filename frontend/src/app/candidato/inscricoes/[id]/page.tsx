@@ -7,7 +7,6 @@ import { ErrorAlert, SuccessAlert } from "@/components/FormAlert";
 import {
   APPLICATION_STATUS_LABELS,
   type ApplicationDetail,
-  DOCUMENT_STATUS_LABELS,
 } from "@/features/application/types";
 import { SessionGate } from "@/features/auth/SessionGate";
 import type { CandidateProfile } from "@/features/candidate/ProfileForm";
@@ -146,6 +145,12 @@ function ApplicationPage({ applicationId }: { applicationId: string }) {
             <strong>Código de autenticidade:</strong> {application.verificationCode}
           </>
         )}
+        {application.decisionReason && (
+          <>
+            <br />
+            <strong>Justificativa:</strong> {application.decisionReason}
+          </>
+        )}
       </p>
       <ErrorAlert error={error} />
       <SuccessAlert message={message} />
@@ -181,7 +186,6 @@ function ApplicationPage({ applicationId }: { applicationId: string }) {
               <li key={document.id}>
                 <a href={`${base}/documents/${document.id}/file`}>{document.originalName}</a>{" "}
                 <span className="hint">({Math.ceil(document.sizeBytes / 1024)} KB)</span>
-                {!isDraft && <span className="hint"> · {DOCUMENT_STATUS_LABELS[document.status]}</span>}
                 {isDraft && (
                   <>
                     {" "}

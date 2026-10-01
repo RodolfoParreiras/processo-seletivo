@@ -105,7 +105,7 @@ class ApplicationFlowTest extends PostgresIntegrationTest {
                     .andExpect(jsonPath("$.status").value("RECEBIDA"))
                     .andExpect(jsonPath("$.applicationNumber").value(process.number() + "/2026-00001"))
                     // Documentos exigidos vêm em ordem alfabética: "Certificado" antes de "Documento de identidade".
-                    .andExpect(jsonPath("$.requirements[1].documents[0].status").value("PENDENTE"));
+                    .andExpect(jsonPath("$.requirements[1].documents[0].originalName").value("documento.pdf"));
             mockMvc.perform(get("/api/candidate/applications").cookie(session))
                     .andExpect(jsonPath("$[0].positionName").value("Cargo 1"));
 

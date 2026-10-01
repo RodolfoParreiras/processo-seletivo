@@ -102,3 +102,20 @@ Todos os campos do §7 são obrigatórios, exceto o complemento do endereço.
 - Rascunhos não confirmados são descartados automaticamente quando o processo deixa de aceitar inscrições.
 - O e-mail de confirmação usa fila (outbox) no banco: falhas de envio ficam registradas e são tentadas novamente, sem desfazer a inscrição (especificação §28).
 - O comprovante contém nome, CPF mascarado, processo, cargo, número, data/hora, necessidade de adaptação declarada, termo de declaração e código de autenticidade.
+
+## Deferimento e indeferimento (fase 6)
+
+Decisão da Prefeitura, que altera o escopo da especificação (§29, §30 e §55):
+
+- Não há análise de documento por documento no sistema. O administrador consulta os documentos enviados e decide sobre a inscrição: **deferida** ou **indeferida**.
+- O indeferimento exige justificativa. A justificativa é exibida ao candidato.
+- A decisão pode ser alterada depois (ex.: após recurso), sempre com justificativa. Todo o histórico (situação anterior, nova, justificativa, responsável, data/hora) é mantido e não pode ser alterado.
+- Não existe a situação "Em análise". Uma inscrição confirmada fica "Recebida" até a decisão.
+- Notas de provas e de títulos **não** são registradas no sistema: são divulgadas em PDF externo (publicação de resultados, fase 9).
+
+Regras técnicas adotadas pela equipe de desenvolvimento (ajustáveis):
+
+- Decisões são permitidas quando o processo está com inscrições encerradas ou com resultado preliminar. Ficam bloqueadas com resultado definitivo, arquivado, cancelado ou suspenso.
+- Deferir exige a permissão `INSCRICAO_DEFERIR`; indeferir exige `INSCRICAO_INDEFERIR`; consultar exige `INSCRICAO_VISUALIZAR`.
+- Dados de pessoa com deficiência e necessidade de adaptações só aparecem para quem tem a permissão `DADOS_PCD_VISUALIZAR` (especificação §9 e §66). O Administrador Geral recebe essa permissão.
+- O download de documento de candidato por administrador é registrado na auditoria (especificação §36).

@@ -1,6 +1,5 @@
 package br.gov.pmps.processoseletivo.application.dto.application;
 
-import br.gov.pmps.processoseletivo.domain.model.application.ApplicationDocument;
 import br.gov.pmps.processoseletivo.domain.model.application.ApplicationStatus;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
@@ -30,8 +29,7 @@ public final class ApplicationDtos {
             Instant confirmedAt) {
     }
 
-    public record DocumentItem(
-            UUID id, String originalName, long sizeBytes, Instant uploadedAt, ApplicationDocument.Status status) {
+    public record DocumentItem(UUID id, String originalName, long sizeBytes, Instant uploadedAt) {
     }
 
     public record RequirementItem(
@@ -47,6 +45,8 @@ public final class ApplicationDtos {
             ApplicationStatus status,
             String applicationNumber,
             String verificationCode,
+            // Justificativa da decisão vigente (obrigatória no indeferimento), visível ao candidato.
+            String decisionReason,
             Instant createdAt,
             Instant confirmedAt,
             Instant registrationEnd,

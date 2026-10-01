@@ -48,6 +48,10 @@ public class Application {
     @Column(name = "confirmed_at")
     private Instant confirmedAt;
 
+    // Justificativa da decisão vigente; o histórico completo está em ApplicationDecision.
+    @Column(name = "decision_reason")
+    private String decisionReason;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -101,6 +105,36 @@ public class Application {
         this.updatedAt = now;
     }
 
+    /**
+     * Defere ou indefere. Indeferimento e qualquer revisão de decisão anterior (ex.: recurso) exigem
+     * justificativa (docs/DECISOES.md).
+     *
+     * @return situação anterior
+     */
+    public ApplicationStatus decide(ApplicationStatus target, String reason, Instant now) {
+        if (target != ApplicationStatus.DEFERIDA && target != ApplicationStatus.INDEFERIDA) {
+            throw new IllegalArgumentException("Decisão inválida: " + target);
+        }
+        if (status == ApplicationStatus.RASCUNHO) {
+            throw new DomainRuleException("Rascunho não confirmado não pode ser deferido ou indeferido.");
+        }
+        if (status == target) {
+            throw new DomainRuleException("A inscrição já está com esta situação.");
+        }
+        boolean revision = status != ApplicationStatus.RECEBIDA;
+        boolean hasReason = reason != null && !reason.isBlank();
+        if ((target == ApplicationStatus.INDEFERIDA || revision) && !hasReason) {
+            throw new DomainRuleException(revision
+                    ? "Informe a justificativa da alteração da decisão."
+                    : "Informe a justificativa do indeferimento.");
+        }
+        ApplicationStatus previous = status;
+        status = target;
+        decisionReason = hasReason ? reason.trim() : null;
+        updatedAt = now;
+        return previous;
+    }
+
     /** Após a confirmação a inscrição não muda de cargo nem de documentos (docs/DECISOES.md). */
     public void requireDraft() {
         if (status != ApplicationStatus.RASCUNHO) {
@@ -142,6 +176,10 @@ public class Application {
 
     public Instant getConfirmedAt() {
         return confirmedAt;
+    }
+
+    public String getDecisionReason() {
+        return decisionReason;
     }
 
     public Instant getCreatedAt() {

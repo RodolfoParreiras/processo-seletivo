@@ -263,6 +263,21 @@ public class SelectionProcess {
         return status == ProcessStatus.RASCUNHO;
     }
 
+    /**
+     * Deferimento/indeferimento após o encerramento das inscrições e até o resultado definitivo
+     * (inclui revisões por recurso após o resultado preliminar; docs/DECISOES.md).
+     */
+    public boolean allowsApplicationDecisions() {
+        return status == ProcessStatus.INSCRICOES_ENCERRADAS || status == ProcessStatus.RESULTADO_PRELIMINAR;
+    }
+
+    public void requireApplicationDecisionsAllowed() {
+        if (!allowsApplicationDecisions()) {
+            throw new DomainRuleException(
+                    "Deferimento e indeferimento só são permitidos com inscrições encerradas ou resultado preliminar.");
+        }
+    }
+
     /** Inscrições exigem a situação e a data, sem depender do horário em que a transição automática roda. */
     public boolean acceptsApplications(Instant now) {
         return status == ProcessStatus.INSCRICOES_ABERTAS

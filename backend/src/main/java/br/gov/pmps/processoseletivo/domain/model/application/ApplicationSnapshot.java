@@ -106,6 +106,10 @@ public class ApplicationSnapshot {
         return birthDate;
     }
 
+    public String getMotherName() {
+        return motherName;
+    }
+
     public String getEmail() {
         return email;
     }

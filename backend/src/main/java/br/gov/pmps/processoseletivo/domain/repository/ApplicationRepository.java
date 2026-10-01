@@ -1,11 +1,14 @@
 package br.gov.pmps.processoseletivo.domain.repository;
 
 import br.gov.pmps.processoseletivo.domain.model.application.Application;
+import br.gov.pmps.processoseletivo.domain.model.application.ApplicationStatus;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -35,6 +38,26 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
              order by a.createdAt desc
             """)
     List<CandidateApplicationRow> findRowsByCandidateId(@Param("candidateId") UUID candidateId);
+
+    /** Inscrições confirmadas de um processo, para a área administrativa. Rascunhos nunca aparecem. */
+    @Query(value = """
+            select new br.gov.pmps.processoseletivo.domain.repository.AdminApplicationRow(
+                       a.id, a.applicationNumber, s.fullName, s.positionName, a.status, a.confirmedAt)
+              from Application a, ApplicationSnapshot s
+             where s.applicationId = a.id and a.processId = :processId
+               and a.status <> br.gov.pmps.processoseletivo.domain.model.application.ApplicationStatus.RASCUNHO
+               and (:status is null or a.status = :status)
+            """,
+            countQuery = """
+            select count(a) from Application a
+             where a.processId = :processId
+               and a.status <> br.gov.pmps.processoseletivo.domain.model.application.ApplicationStatus.RASCUNHO
+               and (:status is null or a.status = :status)
+            """)
+    Page<AdminApplicationRow> findAdminRows(
+            @Param("processId") UUID processId,
+            @Param("status") ApplicationStatus status,
+            Pageable pageable);
 
     /**
      * Rascunhos de processos que não aceitam mais inscrições. Processos suspensos mantêm os rascunhos,

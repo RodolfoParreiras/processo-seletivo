@@ -112,7 +112,8 @@ public class ApplicationQueryUseCase {
         return new ApplicationDetail(
                 application.getId(), process.getId(), process.getDisplayNumber(), process.getTitle(),
                 positionName(process, application.getPositionId()), application.getStatus(),
-                application.getApplicationNumber(), application.getVerificationCode(), application.getCreatedAt(),
+                application.getApplicationNumber(), application.getVerificationCode(), application.getDecisionReason(),
+                application.getCreatedAt(),
                 application.getConfirmedAt(), process.getRegistrationEnd(), process.acceptsApplications(clock.instant()),
                 appProperties.files().maxDocumentsPerApplication(), requirements);
     }
@@ -182,6 +183,6 @@ public class ApplicationQueryUseCase {
 
     private static DocumentItem toItem(ApplicationDocument document, StoredFile file) {
         return new DocumentItem(document.getId(), file.getOriginalName(), file.getSizeBytes(),
-                document.getUploadedAt(), document.getStatus());
+                document.getUploadedAt());
     }
 }
